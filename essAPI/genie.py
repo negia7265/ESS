@@ -1,18 +1,13 @@
 import datefinder
-import pytesseract
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import re # For preprocessing
 from nltk.stem import WordNetLemmatizer
-import cv2
-import numpy as np
 
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 stop_words.remove('m')  #meter word must not be removed during preprocessing
-
-char_list='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,." "₹'
 
 def preprocess_text(text):
     #remove punctuation mark from the text
@@ -58,48 +53,3 @@ def extract_amount(text): #it's just a dummy function (need to write algorithms 
     if starting_amount:
         cost.add(float(starting_amount.group(1)))
     return cost
-
-def get_img_data(img):
-        box=pytesseract.image_to_data(img,output_type=pytesseract.Output.DICT,config=f'-c tessedit_char_whitelist={char_list}')
-        n_boxes = len(box['level'])
-        data={}
-        for i in range(n_boxes):
-            if box['top'][i] not in d:
-                if box['text'][i]=='':
-                    data[box['top'][i]]=[]
-                else:
-                    data[box['top'][i]]=[[box['left'][i],box['text'][i]]]
-            elif data['text'][i]!='':
-                data[box['top'][i]].append([box['left'][i],box['text'][i]])      
-        return data
-
-
-def getBox(img):
-    # Specify structure shape and kernel size.Kernel size increases or decreases the area of the rectangle to be detected. 
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 0))   
-    # Appplying dilation on the threshold image 
-    dilation = cv2.dilate(img, rect_kernel, iterations = 1) 
-    # Finding contours 
-    contours, _ = cv2.findContours(dilation,  cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
-    boxes=[]
-    for cnt in contours[::-1]: 
-        x, y, w, h = cv2.boundingRect(cnt) 
-        cropped = img[y:y + h, x:x + w]
-        boxes.append(pytesseract.image_to_string(cropped,config=f'--oem 3 --psm 1 -c tessedit_char_whitelist={char_list}'))
-    return boxes
-
-
-def preprocess_img(img):
-    # Decode and convert to grayscale
-    img = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_GRAYSCALE)
-    # Denoising Image
-    img = cv2.fastNlMeansDenoising( img, None, 15, 7, 21 )   
-    # Image Binarization
-    img=cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    # Perform morphological operations (erosion and dilation)
-    kernel = np.ones((1, 1), np.uint8)
-    return cv2.morphologyEx(img, cv2.MORPH_DILATE, kernel)
-
-
-def get_text(img):
-    return pytesseract.image_to_string(img,lang='eng_ruppe') # config='--oem 3 --psm 1'

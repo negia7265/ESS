@@ -143,7 +143,7 @@ const ConveyanceForm = (props) => {
     const formData = new FormData();
     formData.append("file", file);
     axios
-      .post("http://127.0.0.1:5000/extractInvoice/", formData, {
+      .post("http://localhost:8080/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

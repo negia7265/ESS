@@ -5,6 +5,4 @@ pdfplumber
 datefinder
 pytesseract
 nltk
-cv2
 numpy
-opencv-python
