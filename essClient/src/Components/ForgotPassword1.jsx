@@ -1,5 +1,4 @@
 import React from 'react';
-import './LoginSignup.css'
 // import Login  from './Login.jsx';
 
 import Forgot_password from './Assests/Forgot_password.jpg';
