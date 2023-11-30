@@ -3,6 +3,7 @@ require("dotenv").config();
 const app = express();
 const cors = require("cors");
 app.use(cors());
+const fs=require('fs')
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const bcrypt = require("bcrypt");
@@ -18,14 +19,14 @@ const ocr=require('./ocr');
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+    if (file.mimetype.startsWith('image')) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF or images are allowed!'), false);
+      cb(new Error('only image is allowed!'), false);
     }
   },
   limits: {
-    files:4, // Maximum number of files in a single request
+    files:1, // Maximum number of files in a single request
     fileSize:7340032  // 1024 X 1024 X 7 MB
   },
 });
@@ -75,24 +76,22 @@ const upload = multer({
 // });
 
 app.post('/upload',async (req,res)=>{
-  upload.array('files')(req, res, (err) => {
+  upload.single('file')(req, res, (err) => {
     if (err instanceof multer.MulterError) {
-      if (err) {
         res.send(err)
-      }
     } 
-    const files = req.files;
-    if (!files) {
-      return res.status(400).send('No files were uploaded.');
+    if (!req.file) {
+      return res.status(400).send('No invoice image is uploaded.');
     }
-    ocr(files).then((f)=>{
-       console.log(f)
+    const image = req.file.buffer;
+ 
+     ocr(image).then((img_data)=>{
+       axios.post('http://127.0.0.1:5000/parse_invoice/api/tsv',img_data).then((result)=>{
+       res.send(result.data)
+       })
     }).catch((error) => {
       console.error(error);
     });
-    // axios.post('http://127.0.0.1:5000/extractInvoice/',ocr(files)).then((data)=>{
-    //   res.send(data)
-    // })
   });
 })
 
