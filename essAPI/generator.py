@@ -9,7 +9,7 @@ import json
 import re
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
-vocab=json.load(open('annotated.json','r'))
+vocab=json.load(open('vocab.json','r'))
 
 def detect_candidate(text):
   if pd.isna(text):
@@ -56,7 +56,7 @@ class Generate_Extraction_Candidates:
         cand['field_id']=df['text'].apply(detect_candidate)
         if self.true_candidates!=None:
            cand['correct_candidate']=df['text'].apply(self.check_correctness)
-        cand.dropna(subset=['field_id'],inplace=True)
+        cand.dropna(subset=['field_id','top','width','height','left'],inplace=True)
         return cand
     def words_to_id(self,text):
         if not pd.isna(text) and text.isalpha():
@@ -65,7 +65,7 @@ class Generate_Extraction_Candidates:
         return None        
 
         
-    def get_extraction_candidates(self,df,num_neighbours,true_candidates=None,height=None,width=None):
+    def get_extraction_candidates(self,df,num_neighbours,true_candidates,height,width):
         self.height=height
         self.width=width
         self.true_candidates=true_candidates
@@ -121,8 +121,9 @@ class Generate_Extraction_Candidates:
             candidates_df.at[i,'neighbour_id']=neighbour_id
             candidates_df.at[i,'neighbour_relative_position']=neighbour_positions
             candidates_df.at[i,'mask']=mask
-            candidates_df.at[i,'candidate_position']=list([x1,y1]) 
-        candidates_df.dropna(subset=['field_id','candidate_position','neighbour_id','neighbour_relative_position','mask','left','top','width','height'])
+            candidates_df.at[i,'candidate_position']=list([float(x1),float(y1)]) 
+        #TODO some of the candidate positions are coming na ,  dont know reason behind it , checked everything but still candidate positions are invalid sometime.
+        candidates_df.dropna(subset=['field_id','candidate_position','neighbour_id','neighbour_relative_position','mask','left','top','width','height'],inplace=True)
         return candidates_df
 
     def generate_dataset(self,dir,annotated_file,num_neighbours):

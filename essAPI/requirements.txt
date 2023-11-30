@@ -3,6 +3,5 @@ Flask-CORS
 datefinder
 pdfplumber
 datefinder
-pytesseract
 nltk
 numpy
