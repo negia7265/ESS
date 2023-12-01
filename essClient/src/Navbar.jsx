@@ -7,7 +7,6 @@ const StyledNavbar = styled.div`
   height:7vh;
   justify-content: space-between;
   align-items: center;
-  position:absolute;
 `;
 
 const ContainerNav = styled.div`
@@ -64,10 +63,7 @@ const Navbar = () => {
           <LogoHeading>ESS</LogoHeading>
         </LogoContainer>
         <NavigationLinks>
-          <StyledList href="/Dashboard">Dashboard</StyledList>
-          <StyledList href="/SignUp">Register</StyledList>
-          <StyledList href="/Login">Login</StyledList>
-          <StyledList href="#">Logout</StyledList>
+          <StyledList href="/">Dashboard</StyledList>
         </NavigationLinks>
       </ContainerNav>
     </StyledNavbar>

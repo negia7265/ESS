@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { nanoid } from 'nanoid'
-
+import Candidates from './Candidates';
+import axios from 'axios';
 const Container = styled.div`
-  display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background: linear-gradient(to right, #003366, #004080, #0059b3, #0073e6);
+  padding:2em;
 `;
-
+const Table=styled.table`
+width:40vw;
+align-items:center;
+justify-content:center;
+text-align:center;
+`
 const Dropzone = styled.div`
   width: 40vw;
-  height: 60vh;
+  height: 20vh;
   border: 1px dashed #ccc;
   display: flex;
   justify-content: center;
@@ -22,7 +26,7 @@ const Dropzone = styled.div`
     opacity:0.8;
   }
   border-radius:1em;
-  background-color:grey;
+  background-color: #f0f0f0;
 `;
 
 const FileInput = styled.input`
@@ -37,279 +41,195 @@ cursor: pointer;
 
 const Button = styled.button`
   margin-top: 10px;
+  background-color:indigo;
+  height:3em;
+  width:8em;
+  color:white;
+  font-weight:bold;
+  font-size:1em;
+  border-radius:1em;
+  cursor:pointer;
+`;
+const Delete=styled.button`
+ cursor:pointer;
+ font-size:1em;
+ background:transparent;
+ padding:1em;
+ overlow:hidden;
 `;
 
-const MultipleFileUpload = () => {
-  const [files, setFiles] = useState([]);
-  const [selectedfile, setSelectedFile] = useState([]);
-  const handleFileChange = (e) => {
-    setFiles(e.target.files);
-  };
+const SplitScreen = styled.div`
+  display: flex;
+  height: 100vh;
+`;
 
-  const filesizes = (bytes, decimals = 2) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  };
+const LeftPane = styled.div`
+  overflow-y:auto;
+  background-color: #f0f0f0;
+`;
 
-  const InputChange = (e) => {
-    let images = [];
-    for (let i = 0; i < e.target.files.length; i++) {
-      images.push(e.target.files[i]);
-      let reader = new FileReader();
-      let file = e.target.files[i];
-      reader.onloadend = () => {
-        setSelectedFile((prevValue) => [
-          ...prevValue,
-          {
-            id: nanoid() ,
-            filename: e.target.files[i].name,
-            filetype: e.target.files[i].type,
-            fileimage: reader.result,
-            datetime: e.target.files[i].lastModifiedDate.toLocaleString("en-IN"),
-            filesize: filesizes(e.target.files[i].size),
-          },
-        ]);
-      };
-      if (e.target.files[i]) {
-        reader.readAsDataURL(file);
+const RightPane = styled.div`
+  overflow-y: auto;
+  background-color: #ffffff;
+`;
+
+
+const FileContainer = styled.div`
+  width: 40vw;
+  margin-top:0.5em;
+  height: 10vh;
+  border: 1px solid grey;
+  display:flex;
+  align-items: center;
+  justify-content:space-between;
+  border-radius: 1em;
+`;
+
+
+const App = () => {
+    const [selectedfile, setSelectedFile] = useState([]);
+    const [essData,setessData]=useState({
+      'date':new Set(),
+      'distance':new Set(),
+      'amount':new Set(),
+      'source_address':new Set(),
+      'destination_address':new Set()
+    });
+    const filesizes = (bytes, decimals = 2) => {
+      if (bytes === 0) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+      const dm = decimals < 0 ? 0 : decimals;
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+    };
+  
+    const InputChange = (e) => {
+      for (let i = 0; i < e.target.files.length; i++) {
+        let reader = new FileReader();
+        let file = e.target.files[i];
+        reader.onloadend = () => {
+          setSelectedFile((prevValue) => [
+            ...prevValue,
+            {
+              id: nanoid() ,
+              filename: e.target.files[i].name,
+              filetype: e.target.files[i].type,
+              file_content:e.target.files[i],
+              filesize: filesizes(e.target.files[i].size),
+            },
+          ]);
+        };
+        if (e.target.files[i]) {
+          reader.readAsArrayBuffer(file);
+        }
       }
-    }
-  };
+    };
+  
+    const deleteSelectFile = (id) => {
+      if (window.confirm("Are you sure you want to delete this Image?")) {
+        const result = selectedfile.filter((data) => data.id !== id);
+        setSelectedFile(result);
+      }
+    };
+  
+    const fileUploadSubmit = (e) => {
+      e.preventDefault();    
+      setessData(prevState => ({
+        ...prevState,
+        source_address: new Set(),
+        destination_address: new Set(),
+        amount: new Set(),
+        date: new Set(),
+        distance: new Set(),
+      }));
 
-  const deleteSelectFile = (id) => {
-    if (window.confirm("Are you sure you want to delete this Image?")) {
-      const result = selectedfile.filter((data) => data.id !== id);
-      setSelectedFile(result);
-    }
-  };
+      if (selectedfile.length > 0) {
+        const formData = new FormData();
+        selectedfile.map((file)=>{
+          formData.append("file", file.file_content);      
+                if(file.filetype=='application/pdf'){
+                  axios.post("http://127.0.0.1:5000/parse_invoice/api/pdf",formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  }).then((response) => {
+                      setessData((prevState) => {
+                        let updatedState = { ...prevState };
+                        updatedState.source_address=response.data.address
+                        updatedState.destination_address=(response.data.address)
+                        updatedState.amount=(response.data.amount)
+                        updatedState.date=response.data.date
+                        updatedState.distance=response.data.distance
+                        return updatedState
+                      });
+                  })
+                }else if(file.filetype.startsWith('image')){
+                  axios.post("http://localhost:8080/upload",formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  }).then((response) => {
+                      setessData((prevState) => {
+                        let updatedState = { ...prevState };
+                        updatedState.source_address=response.data.address
+                        updatedState.destination_address=(response.data.address)
+                        updatedState.amount=(response.data.amount)
+                        updatedState.date=response.data.date
+                        updatedState.distance=response.data.distance
+                        return updatedState
+                      });
 
-  const fileUploadSubmit = (e) => {
-    e.preventDefault();
-    e.target.reset();
-    if (selectedfile.length > 0) {
-      setFiles((prevValue) => [...prevValue, ...selectedfile]);
-      setSelectedFile([]);
-    } else {
-      alert("Please select file");
-    }
-  };
-
-  const deleteFile = (id) => {
-    if (window.confirm("Are you sure you want to delete this Image?")) {
-      const result = Files.filter((data) => data.id !== id);
-      setFiles(result);
-    }
-  };
+                  })
+                }
+        })           
+        setSelectedFile([]);
+      } else {
+        alert("Please select file");
+      }
+    };
   return (
-    <Container>
-      <Dropzone>
-              <FileInput type="file" multiple onChange={handleFileChange} />
+    <SplitScreen>
+      <LeftPane>
+        <Candidates candidateType={'Date'} candidateValues={Array.from(essData.date)}/>
+        <Candidates candidateType={'Distance'} candidateValues={Array.from(essData.distance)}/>
+        <Candidates candidateType={'Amount'} candidateValues={Array.from(essData.amount)}/>
+        <Candidates candidateType={'Source Address'} candidateValues={Array.from(essData.source_address)}/>
+        <Candidates candidateType={'Destination Address'} candidateValues={Array.from(essData.destination_address)}/>
+      </LeftPane>
+      <RightPane>
+      <Container>
+        <Dropzone>
+              <FileInput type="file" multiple onChange={InputChange} />
               <img src='file.svg' height='40' width='40'/>
               <br/>
               <p><strong>Click to upload</strong> or drag and drop
               <br/>
               upto 4 images/pdf, 3MB per file
               </p>
-      </Dropzone>
-        
-      {/* <Button onClick={handleUpload}>Upload</Button> */}
+         </Dropzone>   
+        <Button onClick={fileUploadSubmit}>Upload</Button>
+        {selectedfile.map((data) => {
+                          const { id, filename, fileimage, filesize } = data;
+                           return  <FileContainer key={id} id={id}>
+                            <img src='cool_file.svg' height='40'/>
+                            <div>
+                                {filename} <br/>
+                                {filesize} 
+                            </div>
+                            <Delete
+                            type="button"
+                            onClick={() => deleteSelectFile(id)}
+                            >
+                                ❌                                
+                            </Delete>
+                            </FileContainer>
+                        })}
     </Container>
+      </RightPane>
+    </SplitScreen>
   );
 };
 
-export default MultipleFileUpload;
-// const App = () => {
-//   const [selectedfile, setSelectedFile] = useState([]);
-//   const [Files, setFiles] = useState([]);
 
-//   const filesizes = (bytes, decimals = 2) => {
-//     if (bytes === 0) return "0 Bytes";
-//     const k = 1024;
-//     const dm = decimals < 0 ? 0 : decimals;
-//     const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-//     const i = Math.floor(Math.log(bytes) / Math.log(k));
-//     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-//   };
-
-//   const InputChange = (e) => {
-//     let images = [];
-//     for (let i = 0; i < e.target.files.length; i++) {
-//       images.push(e.target.files[i]);
-//       let reader = new FileReader();
-//       let file = e.target.files[i];
-//       reader.onloadend = () => {
-//         setSelectedFile((prevValue) => [
-//           ...prevValue,
-//           {
-//             id: shortid.generate(),
-//             filename: e.target.files[i].name,
-//             filetype: e.target.files[i].type,
-//             fileimage: reader.result,
-//             datetime: e.target.files[i].lastModifiedDate.toLocaleString("en-IN"),
-//             filesize: filesizes(e.target.files[i].size),
-//           },
-//         ]);
-//       };
-//       if (e.target.files[i]) {
-//         reader.readAsDataURL(file);
-//       }
-//     }
-//   };
-
-//   const deleteSelectFile = (id) => {
-//     if (window.confirm("Are you sure you want to delete this Image?")) {
-//       const result = selectedfile.filter((data) => data.id !== id);
-//       setSelectedFile(result);
-//     }
-//   };
-
-//   const fileUploadSubmit = (e) => {
-//     e.preventDefault();
-//     e.target.reset();
-//     if (selectedfile.length > 0) {
-//       setFiles((prevValue) => [...prevValue, ...selectedfile]);
-//       setSelectedFile([]);
-//     } else {
-//       alert("Please select file");
-//     }
-//   };
-
-//   const deleteFile = (id) => {
-//     if (window.confirm("Are you sure you want to delete this Image?")) {
-//       const result = Files.filter((data) => data.id !== id);
-//       setFiles(result);
-//     }
-//   };
-
-//   return (
-//       <div className="row justify-content-center m-0">
-//         <div className="col-md-6">
-//           <div className="card mt-5">
-//             <div className="card-body">
-//               <div className="kb-data-box">
-//                 <div className="kb-modal-data-title">
-//                   <div className="kb-data-title">
-//                     <h6>Multiple File Upload With Preview</h6>
-//                   </div>
-//                 </div>
-//                 <form onSubmit={fileUploadSubmit}>
-//                   <div className="kb-file-upload">
-//                     <div className="file-upload-box">
-//                       <input
-//                         type="file"
-//                         id="fileupload"
-//                         className="file-upload-input"
-//                         onChange={InputChange}
-//                         multiple
-//                       />
-//                       <span>
-//                         Drag and drop or{" "}
-//                         <span className="file-link">Choose your files</span>
-//                       </span>
-//                     </div>
-//                   </div>
-//                   <div className="kb-attach-box mb-3">
-//                     {selectedfile.map((data) => {
-//                       const { id, filename, fileimage, datetime, filesize } = data;
-//                       return (
-//                         <div className="file-atc-box" key={id}>
-//                           {filename.match(/.(jpg|jpeg|png|gif|svg)$/i) ? (
-//                             <div className="file-image">
-//                               {" "}
-//                               <img src={fileimage} alt="" />
-//                             </div>
-//                           ) : (
-//                             <div className="file-image">
-//                               <i className="far fa-file-alt"></i>
-//                             </div>
-//                           )}
-//                           <div className="file-detail">
-//                             <h6>{filename}</h6>
-//                             <p></p>
-//                             <p>
-//                               <span>Size : {filesize}</span>
-//                               <span className="ml-2">
-//                                 Modified Time : {datetime}
-//                               </span>
-//                             </p>
-//                             <div className="file-actions">
-//                               <button
-//                                 type="button"
-//                                 className="file-action-btn"
-//                                 onClick={() => deleteSelectFile(id)}
-//                               >
-//                                 Delete
-//                               </button>
-//                             </div>
-//                           </div>
-//                         </div>
-//                       );
-//                     })}
-//                   </div>
-//                   <div className="kb-buttons-box">
-//                     <button
-//                       type="submit"
-//                       className="btn btn-primary form-submit"
-//                     >
-//                       Upload
-//                     </button>
-//                   </div>
-//                 </form>
-//                 {Files.length > 0 && (
-//                   <div className="kb-attach-box">
-//                     <hr />
-//                     {Files.map((data, index) => {
-//                       const { id, filename, fileimage, datetime, filesize } = data;
-//                       return (
-//                         <div className="file-atc-box" key={index}>
-//                           {filename.match(/.(jpg|jpeg|png|gif|svg)$/i) ? (
-//                             <div className="file-image">
-//                               {" "}
-//                               <img src={fileimage} alt="" />
-//                             </div>
-//                           ) : (
-//                             <div className="file-image">
-//                               <i className="far fa-file-alt"></i>
-//                             </div>
-//                           )}
-//                           <div className="file-detail">
-//                             <h6>{filename}</h6>
-//                             <p>
-//                               <span>Size : {filesize}</span>
-//                               <span className="ml-3">
-//                                 Modified Time : {datetime}
-//                               </span>
-//                             </p>
-//                             <div className="file-actions">
-//                               <button
-//                                 className="file-action-btn"
-//                                 onClick={() => deleteFile(id)}
-//                               >
-//                                 Delete
-//                               </button>
-//                               <a
-//                                 href={fileimage}
-//                                 className="file-action-btn"
-//                                 download={filename}
-//                               >
-//                                 Download
-//                               </a>
-//                             </div>
-//                           </div>
-//                         </div>
-//                       );
-//                     })}
-//                   </div>
-//                 )}
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//   );
-// };
-// export default App;
+export default App;

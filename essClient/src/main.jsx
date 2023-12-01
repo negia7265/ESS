@@ -1,15 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import ESS from './ESS';
+import { Routes, Route } from "react-router-dom";
+import "./ESS.css";
+import Dashboard from "./Dashboard";
+import NavBar from './Navbar';
 import { BrowserRouter } from "react-router-dom";
-/*
-ESS ->preview, signup,login, forgotpassword, resetpassword, dashboard 
 
-*/
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>     
-     <ESS/>
+    <NavBar/>
+      <Routes>
+        <Route path="/" element={<Dashboard/>}/>
+       </Routes>
     </BrowserRouter>
   </React.StrictMode>
 );
