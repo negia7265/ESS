@@ -84,7 +84,6 @@ app.post('/upload',async (req,res)=>{
       return res.status(400).send('No invoice image is uploaded.');
     }
     const image = req.file.buffer;
- 
      ocr(image).then((img_data)=>{
        axios.post('http://127.0.0.1:5000/parse_invoice/api/tsv',img_data).then((result)=>{
        res.send(result.data)
