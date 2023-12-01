@@ -15,7 +15,7 @@ def detect_candidate(text):
   if pd.isna(text):
      return None
   if re.fullmatch(r"[0-9]*\.?[0-9]+",text):
-      return 1
+      return None
   #TODO work has to be done here to extract candidates
   return None
 
