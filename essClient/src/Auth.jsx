@@ -6,7 +6,6 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(to right, #003366, #004080, #0059b3, #0073e6);
 `;
 const Wrapper = styled.div`
   overflow: hidden;
@@ -71,8 +70,7 @@ const SliderTab = styled.div`
   z-index: 0;
   border-radius: 15px;
   transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  background: -webkit-linear-gradient(left, #003366,#004080,#0059b3
-    , #0073e6);
+  background: -webkit-linear-gradient(left, #003366,#004080,#0059b3, #0073e6);
   ${(props) => props.state!='login' && 'left: 50%'};
 `;
 
