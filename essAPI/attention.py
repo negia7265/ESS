@@ -54,7 +54,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
         if mask is not None:
             #TODO make better mask, expanding dimension
-            mask = tf.expand_dims(tf.expand_dims(mask, axis=1), axis=1) 
+            #mask = tf.expand_dims(tf.expand_dims(mask, axis=1), axis=1) 
             scaled_attention_logits += (mask * -1e9)
 
         attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)

@@ -15,6 +15,7 @@ def index():
     return render_template('404.html'), 404
 
 #TODO check error in each part of api which could occur to wrong data submission
+# api -  http://127.0.0.1:5000/parse_invoice/api/pdf
 @app.route('/parse_invoice/api/pdf', methods=['POST'])
 def extract_invoice_pdf():
     FILE = request.files['file']

@@ -11,7 +11,7 @@ stop_words.remove('m')  #meter word must not be removed during preprocessing
 
 def preprocess_text(text):
     #remove punctuation mark from the text
-    text=text.translate(str.maketrans('','',''',!"#%&'()*+-/:;<=>?@[\]^_`{|}~'''))
+    text=text.translate(str.maketrans('','',''',!"#%&'()*+-/:;<=>?@[\]^_`{|}~$₹'''))
     #remove new line characters
     text=text.replace('\n', ' ')
     # lower case each letter of the word

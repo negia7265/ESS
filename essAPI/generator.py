@@ -15,7 +15,7 @@ def detect_candidate(text):
   if pd.isna(text):
      return None
   if re.fullmatch(r"[0-9]*\.?[0-9]+",text):
-      return None
+      return 1
   #TODO work has to be done here to extract candidates
   return None
 
@@ -48,15 +48,16 @@ class Generate_Extraction_Candidates:
                 return True
         return False
     def get_candidates(self,df):
-        cand=pd.DataFrame(columns=['field_id','candidate_position','neighbour_id','neighbour_relative_position','mask','correct_candidate','left','top','width','height'])
+        cand=pd.DataFrame(columns=['field_id','candidate_position','neighbour_id','neighbour_relative_position','mask','correct_candidate','left','top','width','height','text'])
         cand['left']=df['left']
         cand['top']=df['top']
         cand['width']=df['width']
         cand['height']=df['height']
         cand['field_id']=df['text'].apply(detect_candidate)
+        cand['text']=df['text']
         if self.true_candidates!=None:
            cand['correct_candidate']=df['text'].apply(self.check_correctness)
-        cand.dropna(subset=['field_id','top','width','height','left'],inplace=True)
+        cand.dropna(subset=['field_id','top','width','height','left','text'],inplace=True)
         return cand
     def words_to_id(self,text):
         if not pd.isna(text) and text.isalpha():
