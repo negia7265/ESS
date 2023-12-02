@@ -1,5 +1,5 @@
+# ONLY INDIAN CURRENCY , AMOUNT(RUPPE) , DISTANCE(KM) AND ADDRESS SUPPORTED  
 from customtkinter import filedialog,CTkScrollbar,CTkLabel,CTkFrame,CTkButton,CTkFont,CTkScrollableFrame
-from ESS import InvoiceParser
 from pathlib import Path
 from tkinter import ttk
 from cosine import cosine_similarity
@@ -7,7 +7,15 @@ from message_box import Messagebox
 import customtkinter
 import json
 import os
-
+import requests
+import io
+def convert_to_string(keys,option):
+    if option=='date' or option=='address':
+       return ', '.join([str(key) for key in keys])
+    elif option=='amount':
+       return '₹, '.join([str(key) for key in keys])
+    elif option=='distance':
+       return ' km, '.join([str(key) for key in keys])    
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -20,10 +28,11 @@ class App(customtkinter.CTk):
         self.TEST_DIR='/'
         self.total_correct=[0,0,0,0]
         self.total_actual=[0,0,0,0]
-
+        self.API=None
+ 
     def AppConfigure(self):
         customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-        customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+        customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green"
         screen_width = self.winfo_screenwidth()
         self.screen_height = self.winfo_screenheight()
         self.title("Ess Conveyance Testing App( Tally Solutions) - Made with ❤️ in India")
@@ -31,8 +40,7 @@ class App(customtkinter.CTk):
 
     def treeViewConfigure(self):
         style = ttk.Style()
-        style.theme_use("default")
-        style.configure("Treeview",background="#2a2d2e",foreground="white",rowheight=25,fieldbackground="#343638",bordercolor="#343638",borderwidth=0)
+        style.configure("Treeview", font=('Arial', 20),background="#2a2d2e",foreground="white",rowheight=25,fieldbackground="#343638",bordercolor="#343638",borderwidth=0)
         style.map('Treeview', background=[('selected', '#22559b')])
         style.configure("Treeview.Heading",background="#565b5e",foreground="white",relief="flat")
         style.map("Treeview.Heading",background=[('active', '#3484F0')])    
@@ -45,8 +53,11 @@ class App(customtkinter.CTk):
         logo_label.grid(row=0, column=0, padx=0, pady=5)
         self.folderSetUP()
         self.fileSetUP()
+        api_button = CTkButton(self.sidebar_frame,text='Input API',command=self.get_input_api)
+        api_button.grid(row=4, column=0, padx=0, pady=10,sticky="e")        
         sidebar_button_3 = CTkButton(self.sidebar_frame,text='Start Test',command=self.startInvoiceProcessing,fg_color="green")
         sidebar_button_3.grid(row=5, column=0, padx=0, pady=10,sticky="e")
+            
             
     def folderSetUP(self):
         directory_button = CTkButton(self.sidebar_frame,text='Choose Dataset Folder',command=self.open_dir)
@@ -81,7 +92,7 @@ class App(customtkinter.CTk):
             return ['❌','']
         if correct in computed:
             self.total_correct[index]+=1
-            return ['✅',correct]
+            return ['✔',correct]
         return ['❌',computed[0]]
     
     def compare_address(self,correct,computed,index):
@@ -118,27 +129,33 @@ class App(customtkinter.CTk):
         if  Path(self.LABEL_FILE).suffix != '.json':
              Messagebox("Unknown file","Choose a labeled json test file!")
              return
+        if  self.API == None or self.API =='':
+             Messagebox("","please enter a valid api!")
+             return
         self.resetTable()
-        files=os.listdir(self.TEST_DIR)
-        size=len(files)
+        file_names=os.listdir(self.TEST_DIR)
+        size=len(file_names)
         labeled_data=json.load(open(self.LABEL_FILE))
         for i in range(size):
-            if Path(files[i]).suffix != '.pdf' or (files[i] not in labeled_data) :
+            if Path(file_names[i]).suffix != '.pdf' or (file_names[i] not in labeled_data) :
                continue
-            invoice= open(f'{self.TEST_DIR}/{files[i]}', 'rb')
-            parser=InvoiceParser(invoice)
-            invoice_data=parser.getData()
+            files={'file':(f'{file_names[i]}', open(f'{self.TEST_DIR}/{file_names[i]}', 'rb'), 'application/pdf'),'Content-Type': 'multipart/form-data'}
+            response = requests.post(self.API, files=files)
+            if response.status_code != 200:
+                print('Error uploading PDF:', response.status_code,'response:',response.text)
+                continue
             tags=[]
-            date=self.compare(labeled_data[files[i]]['date'],invoice_data['date'],0)
-            tags.extend([labeled_data[files[i]]['date'],date[1]])
-            distance=self.compare(labeled_data[files[i]]['distance'],invoice_data['distance'],1)
-            tags.extend([labeled_data[files[i]]['distance'],distance[1]])
-            amount=self.compare(labeled_data[files[i]]['amount'],invoice_data['amount'],2)
-            tags.extend([labeled_data[files[i]]['amount'],amount[1]])
-            address=self.compare_address(labeled_data[files[i]]['address'],invoice_data['address'],3)
-            tags.extend(labeled_data[files[i]]['address'])
+            invoice_data= json.loads(response.text)
+            date=self.compare(labeled_data[file_names[i]]['date'],invoice_data['date'],0)
+            tags.extend([labeled_data[file_names[i]]['date'],convert_to_string(invoice_data['date'],'date')])
+            distance=self.compare(labeled_data[file_names[i]]['distance'],invoice_data['distance'],1)
+            tags.extend([labeled_data[file_names[i]]['distance'],convert_to_string(invoice_data['distance'],'distance')])
+            amount=self.compare(labeled_data[file_names[i]]['amount'],invoice_data['amount'],2)
+            tags.extend([labeled_data[file_names[i]]['amount'],convert_to_string(invoice_data['amount'],'amount')])
+            address=self.compare_address(labeled_data[file_names[i]]['address'],invoice_data['address'],3)
+            tags.extend(labeled_data[file_names[i]]['address'])            
             tags.extend(address[1:])
-            self.table.insert(parent='',index=i,values=(files[i],date[0],distance[0],amount[0],address[0]),tags=tags)
+            self.table.insert(parent='',index=i,values=(file_names[i],date[0],distance[0],amount[0],address[0]),tags=tags)
             self.table.update() #Not necessary as table values can be all updated at once and shown to the user after all the process.
         #Set the accuracy for each field
         self.date.configure(text=f'Date {self.computeAccuracy(0)}% Accurate')
@@ -187,7 +204,7 @@ class App(customtkinter.CTk):
         invoice_frame.grid(row=0, column=3, sticky="nswe", padx=5, pady=2) 
         self.date=CTkLabel(invoice_frame, text="Date",font=("Arial", 25, "bold"),text_color="white")
         self.date.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.computedDate=CTkLabel(invoice_frame, text="Computed date:date-month-year",font=("Courier", 15, "bold"),text_color="white")
+        self.computedDate=CTkLabel(invoice_frame, text="Computed date:date-month-year",font=("Courier", 15, "bold"))
         self.computedDate.grid(row=1, column=0, padx=20, pady=0,sticky="w")        
         self.actualDate=CTkLabel(invoice_frame,text="Actual date:date-month-year",font=("Courier",15,"bold"),text_color="white")
         self.actualDate.grid(row=2,column=0,padx=20,pady=0,stick="w")
@@ -245,6 +262,10 @@ class App(customtkinter.CTk):
             count+=1
          self.actualAddress.configure(text=actual_address)
          self.computedAddress.configure(text=computed_address)
+         
+    def get_input_api(self):
+        dialog = customtkinter.CTkInputDialog(text="Please enter the API key or URL", title="CTkInputDialog")
+        self.API=dialog.get_input()
 
 if __name__ == "__main__":
     app = App()
