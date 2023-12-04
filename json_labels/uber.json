@@ -1,0 +1,353 @@
+{
+    "UBER_1.pdf": {
+        "date": "13-01-2020",
+        "distance": 9.42,
+        "amount": 251.73,
+        "address": [
+            "Unnamed Road, Mhada Colony, Viman Nagar, Pune, Maharashtra 411014, India",
+            "Kharadi By Pass Road Near Magarpatta Sesonsmall opp Amonara Town, Magarpatta, Hadapsar, Pune, Maharashtra 411028, India"
+        ]
+    },
+    "UBER_2.pdf": {
+        "date": "30-09-2019",
+        "distance": 25.44,
+        "amount": 586.87,
+        "address": [
+            "6/6, 3rd St, Shanthi Nagar, Adambakkam Shanthi Nagar, Adambakkam Chennai, Tamil Nadu 600088, Santhi Nagar, Adambakkam,, Chennai, Tamil Nadu 600088, India",
+            "Unnamed Road, Kovilancheri, Tamil Nadu 600048, India"
+        ]
+    },
+    "UBER_3.pdf": {
+        "date": "12-06-2019",
+        "distance": 41.24,
+        "amount": 618.5,
+        "address": [
+            "Tower B, Rasoolpur Nawada, Industrial Area, Sector 62, Noida, Uttar Pradesh 201309, India",
+            "DLF Building No. 7B, DLF Cyber City, DLF Phase 2, Sector 24, Gurugram, Haryana 122002, India"
+        ]
+    },
+    "UBER_4.pdf": {
+        "date": "19-08-2019",
+        "distance": 12.94,
+        "amount": 332.94,
+        "address": [
+            "904, Trishla City, Nabha, Punjab 160403, India",
+            "New Civil Air Terminal, Mohali District, Sahibzada Ajit Singh Nagar, Punjab 140306, India"
+        ]
+    },
+    "UBER_5.pdf": {
+        "date": "18-05-2019",
+        "distance": 16.15,
+        "amount": 270.14,
+        "address": [
+            "DLF Phase 5, Sector 54, Gurugram, Haryana 122002, India",
+            "Delhi, 110037, India"
+        ]
+    },
+    "UBER_6.pdf": {
+        "date": "17-07-2019",
+        "distance": 14.62,
+        "amount": 285.14,
+        "address": [
+            "09:01am Crossings Republik, Ghaziabad, Uttar Pradesh 201016, India",
+            "Knowledge Boulevard, A Block, Block A, Industrial Area, Sector 62, Noida, Uttar Pradesh 201309, India"
+        ]
+    },
+    "UBER_7.pdf": {
+        "date": "08-06-2019",
+        "distance": 32.21,
+        "amount": 566.26,
+        "address": [
+            "10:58am New Airport Rd, Borjhar, Guwahati, Assam 781015, India",
+            "11:55am Tripura Rd, Resham Nagar, Khanapara, Guwahati, Assam 781038, India"
+        ]
+    },
+    "UBER_8.pdf": {
+        "date": "22-11-2019",
+        "distance": 31.93,
+        "amount": 451.74,
+        "address": [
+            "Mindspace Rd, Rolling Hills, P Janardhan Reddy Nagar, Gachibowli, Hyderabad, elangana 500081, India",
+            "Food Court, Level B, Rajiv Gandhi International Airport, Shamshabad, Hyderabad, Telangana 501218, India"
+        ]
+    },
+    "UBER_9.pdf": {
+        "date": "10-07-2019",
+        "distance": 11.14,
+        "amount": 197.07,
+        "address": [
+            "189, Udyog Vihar Phase 1, Udyog Vihar, Sector 20, Gurugram, Haryana 122008, India",
+            "6/82, Jharera, Jharera Village, Delhi Cantonment, New Delhi, Delhi 110010, India"
+        ]
+    },
+    "UBER_10.pdf": {
+        "date": "11-10-2019",
+        "distance": 45.5,
+        "amount": 1280.89,
+        "address": [
+            "Unnamed Road, Shamshabad, Hyderabad, Telangana 501218, India",
+            "Sai Jyothi Apartment, Creative Nagar, Dr AS Rao Nagar, Secunderabad, Telangana 500062, India"
+        ]
+    },
+    "UBER_11.pdf": {
+        "date": "23-04-2019",
+        "distance": "",
+        "amount": 674.25,
+        "address": [
+            "Haware Infotech Park, Sector 30A, Vashi, Navi Mumbai, Maharashtra 400703, India",
+            "7, Dongripada, Thane West,Thane, Maharashtra 400607, India"
+        ]
+    },
+    "UBER_12.pdf": {
+        "date": "18-07-2019",
+        "distance": 27.15,
+        "amount": 563.98,
+        "address": [
+            "NSCBI Airport,Dum Dum, Airport Terminal 2, International Airport, Dum Dum, Kolkata, West Bengal 700052, India",
+            "9/1/1, Manik Bandyopadhyay Sarani, Moor Avenue, Ashok Nagar, Tollygunge, Kolkata, West Bengal 700040, India"
+        ]
+    },
+    "UBER_13.pdf": {
+        "date": "11-06-2019",
+        "distance": 52.45,
+        "amount": 1268.96,
+        "address": [
+            "118, Butt Rd, Parangi Malai, St Thomas Mount, Chennai, Tamil Nadu 600016, India",
+            "Meenambakkam, Chennai, Tamil Nadu 600027, India"
+        ]
+    },
+    "UBER_14_!.pdf": {
+        "date": "31-03-2019",
+        "distance": 28.41,
+        "amount": 712.76,
+        "address": [
+            "Arrival Dr, Shamshabad, Hyderabad, Telangana 501218, India",
+            "Subodaya Luxury Apartments, YWCA Road, Bogulkunta, Hyderguda, Hyderabad, Telangana 500001, India"
+        ]
+    },
+    "UBER_15.pdf": {
+        "date": "07-06-2019",
+        "distance": 15.97,
+        "amount": 251.58,
+        "address": [
+            "12:39pm BLC-143, Golf Course Road, DLF Phase 5, Sector 54, Gurugram, Haryana 122002, India",
+            "Delhi, 110037, India"
+        ]
+    },
+    "UBER_16.pdf": {
+        "date": "22-11-2019",
+        "distance": 17.98,
+        "amount": 231.14,
+        "address": [
+            "15, D-Cabin, Sabarmati, Ahmedabad, Gujarat 380019, India",
+            "Block 9, Ground Floor, Udhyog Bhawan, 4 Circle, GH Rd, Sector 11, Gandhinagar, Gujarat 382010, India"
+        ]
+    },
+    "UBER_17.pdf": {
+        "date": "18-07-2019",
+        "distance": 6.43,
+        "amount": 204.69,
+        "address": [
+            "6-3-581/1/1, Anand Nagar Rd, Venkataraman Colony, Khairtabad, Hyderabad, Telangana 500004, India",
+            "Nimboliadda, Kachiguda, Hyderabad, Telangana 500027, India"
+        ]
+    },
+    "UBER_18.pdf": {
+        "date": "14-06-2019",
+        "distance": 44.3,
+        "amount": 975.56,
+        "address": [
+            "Kempegowda International Airport Bengaluru, KIAL Rd, Devanahalli, Bengaluru, Karnataka 560300",
+            "J. P. Distilleries Pvt. Ltd., 8, Tumkur Road, Mahali Village, Dasanpur Nelamangala Taluk, Bengaluru, Karnataka 562123"
+        ]
+    },
+    "UBER_19.pdf": {
+        "date": "21-09-2019",
+        "distance": 14.05,
+        "amount": 282.91,
+        "address": [
+            "Krishnappa Garden, C V Raman Nagar, Bengaluru, Karnataka 560075, India",
+            "Windmills of Your Mind, 331, 5B Rd, Shivaji Nagar, KIADB Export Promotion Industrial Area, Whitefield, Bengaluru, Karnataka 560066, India"
+        ]
+    },
+    "UBER_20.pdf": {
+        "date": "03-12-2019",
+        "distance": 13.59,
+        "amount": 257.55,
+        "address": [
+            "Gujarat State Highway 41, Nigam Nagar, Chandkheda, Ahmedabad, Gujarat 382424, India",
+            "10:37am | SVPI Airport, T-2, Hansol, Hansol, Ahmedabad, Gujarat 382475, India"
+        ]
+    },
+    "UBER_21.pdf": {
+        "date": "01-12-2019",
+        "distance": 36.38,
+        "amount": 679.45,
+        "address": [
+            "Casa Paradiso, Allauddin Basthi, Sanath Nagar, Hyderabad, Telangana 500018, India",
+            "Departure Dr, Shamshabad, Hyderabad, Telangana 501218, India"
+        ]
+    },
+    "UBER_22.pdf": {
+        "date": "21-12-2019",
+        "distance": 10.02,
+        "amount": 386.67,
+        "address": [
+            "1431/1, 4th Cross Rd, Rashad Nagar, Govindapura, HBR Layout, Bengaluru, Karnataka 560045, India",
+            "RK Puram, Gandhi Nagar, Bengaluru, Karnataka 560009, India"
+        ]
+    },
+    "UBER_23.pdf": {
+        "date": "16-11-2019",
+        "distance": 19.15,
+        "amount": 415.31,
+        "address": [
+            "16, CIT Rd, Beniapukur, Kolkata, West Bengal 700014, India",
+            "Shankar Rd, Security Counter, Inside Domestic Airport Parking, International Airport, Dum Dum, Kolkata, West Bengal 700052, India"
+        ]
+    },
+    "UBER_24.pdf": {
+        "date": "05-08-2019",
+        "distance": 21.32,
+        "amount": 571.32,
+        "address": [
+            "Delhi, 110037, India",
+            "MS-4, Kendriya Vihar, Sector 56, Gurugram, Haryana 122011, India"
+        ]
+    },
+    "UBER_25.pdf": {
+        "date": "10-09-2019",
+        "distance": 21.79,
+        "amount": 352.19,
+        "address": [
+            "Park Plaza, Mother Teresa Sarani, Taltala, Kolkata, West Bengal 700016, India",
+            "Biswa Bangla Sarani, Action Area IIE, Sukanta Pally, Newtown, New Town, West Bengal 700157, India"
+        ]
+    },
+    "UBER_26.pdf": {
+        "date": "17-07-2017",
+        "distance": 19.96,
+        "amount": 437.14,
+        "address": [
+            "187, Block D, Sector 61, Noida, Uttar Pradesh 201301, India",
+            "2/45, Block 2, Geeta Colony, \u0928\u0908 \u0926\u0932, Delhi 110031, India"
+        ]
+    },
+    "UBER_27.pdf": {
+        "date": "07-08-2019",
+        "distance": 45.46,
+        "amount": 1200.16,
+        "address": [
+            "Kempegowda International Airport, Bangalore, Karanataka",
+            "4th Main,Ramapriya Brundavan gardan Arehallii, Bengaluru, Karnataka 560061, India"
+        ]
+    },
+    "UBER_28.pdf": {
+        "date": "29-11-2018",
+        "distance": 7.21,
+        "amount": 221.53,
+        "address": [
+            "SRA-9, Crash Rd, Vazhakkala, Kakkanad, Kerala 682021, India",
+            "Roshan Ln, Kacheripady, Ernakulam, Kerala 682018, India"
+        ]
+    },
+    "UBER_29.pdf": {
+        "date": "17-01-2020",
+        "distance": 38.82,
+        "amount": 868.34,
+        "address": [
+            "236/1, Magadi Main Rd, Lakshminarayanapuram, Binnipete, Bengaluru, Karnataka 560023, India",
+            "Main Terminal, Kempegowda Int'l Airport Rd, A - Block, Gangamuthanahalli, Karnataka 560300, India"
+        ]
+    },
+    "UBER_30.pdf": {
+        "date": "07-05-2022",
+        "distance": 17.12,
+        "amount": 476.88,
+        "address": [
+            "Hotel Olive Eva opp. Inforpark Kakkanad, Kochi, Kerala 682030, India",
+            "Vytila junction, opp. corpration bulding, Kochi, Kerala 682019, India"
+        ]
+    },
+    "UBER_31.pdf": {
+        "date": "31-08-2017",
+        "distance": 8.84,
+        "amount": 69.9,
+        "address": [
+            "12, Khatipura Rd, Parivahan Nagar, Khatipura, Jaipur, Rajasthan 302012, India",
+            "SB-108, Sawai Mansingh Rd, Bapu Nagar, Jaipur, Rajasthan 302007, India"
+        ]
+    },
+    "UBER_33.pdf": {
+        "date": "11-05-2023",
+        "distance": 35.19,
+        "amount": 497.0,
+        "address": [
+            "Shyam Colony, Block F, Budh Vihar Phase II, Budh Vihar, New Delhi, Delhi 110041, India",
+            "CORE-3, SCOPE COMPLEX, 7-INSTITUTIONAL AREA, Lodhi Road, CGO Complex, Pragati Vihar, New Delhi, Delhi 110003, India"
+        ]
+    },
+    "UBER_34.pdf": {
+        "date": "03-02-2023",
+        "distance": 10.3,
+        "amount": 253.73,
+        "address": [
+            "Jasmine Heights, JC9W+H36, Swami Vivekananda Rd, Noapara, Sukanta Pally, Rajarhat, West Bengal 700157, India",
+            "DLF IT PARK-1, 8 Major Arterial Road, Street Number 30, Action Area I, Newtown, New Town, West Bengal 700156, India"
+        ]
+    },
+    "UBER_35.pdf": {
+        "date": "10-10-2023",
+        "distance": 26.13,
+        "amount": 541.5,
+        "address": [
+            "24, B Narayanaswamappa Rd, Gokula 1st Stage, LIC Colony, Mathikere, Bengaluru, Karnataka 560022, India",
+            "Salarpuria Sattva Eminence, Kadubeesanahalli, Bengaluru, Bellandur Amanikere, Karnataka 560103, India"
+        ]
+    },
+    "UBER_36.pdf": {
+        "date": "17-04-2023",
+        "distance": 15.25,
+        "amount": 206.0,
+        "address": [
+            "E-142 & 143, IT Park Rd, Sitapura Industrial Area, Sitapura, Jaipur, Rajasthan 302022, India",
+            "39 Jagdamba apt, Shyam Marg, Dholai, Mohanpura, Rajasthan 302029, India"
+        ]
+    },
+    "UBER_37.pdf": {
+        "date": "11-12-2022",
+        "distance": 18.61,
+        "amount": 368.0,
+        "address": [
+            "Maidan, Esplanade, Kolkata, West Bengal 700069, India",
+            "Terminal II, Room No: B-327, Netaji Subhash Chandra Bose International Airport, International Airport, Dum Dum, Kolkata, West Bengal 700052, India"
+        ]
+    },
+    "UBER_38.pdf": {
+        "date": "19-07-2023",
+        "distance": 26.37,
+        "amount": 634.0,
+        "address": [
+            "Hyderabad - Ramagundam Rd, Shamirpet, Secunderabad, Telangana 500078, India",
+            "# 65/A Vengalrao Nagar, East Srinivas Nagar Colony, Sanjeeva Reddy Nagar Office Area, Sanjeeva Reddy Nagar, Hyderabad, Telangana 500038, India"
+        ]
+    },
+    "UBER_39.pdf": {
+        "date": "28-09-2020",
+        "distance": 14.67,
+        "amount": 220.0,
+        "address": [
+            "Sant Nagar, Sundar Nagar, New Delhi, Delhi 110003, India",
+            "Narmadeshwar Niwas (beside Narmadeshwar Shiv Mandir B Block, Sector 62, Nearby B block market, Block B, Industrial Area, Sector 62, Noida, Uttar Pradesh 201309, India"
+        ]
+    },
+    "UBER_40.pdf": {
+        "date": "06-07-2023",
+        "distance": 41.37,
+        "amount": 1969.0,
+        "address": [
+            "The Forum Mall, 21, Hosur Rd, Chikku Lakshmaiah Layout, Koramangala, Bengaluru, Karnataka 560095, India",
+            "Kempegowda International Airport Bengaluru, T2 Terminal, Bengaluru, Karnataka 560300, India"
+        ]
+    }
+}

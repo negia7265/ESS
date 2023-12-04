@@ -1,0 +1,8 @@
+Flask
+Flask-CORS
+datefinder
+pdfplumber
+datefinder
+nltk
+numpy
+tensorflow==2.9.2
