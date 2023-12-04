@@ -4,44 +4,14 @@ import pandas as pd
 import pdfplumber
 from io import BytesIO
 from generator import Generate_Extraction_Candidates
-from model import Model
 import os
 import sys
 if sys.version_info[0] < 3: 
     from StringIO import StringIO
 else:
     from io import StringIO
-
 gen=Generate_Extraction_Candidates()   
-
-def init_amount_model():
-    VOCAB_SIZE=2300
-    EMBEDDING_SIZE=100
-    NEIGHBOURS=10
-    HEADS=4
-    model = Model(VOCAB_SIZE, EMBEDDING_SIZE, NEIGHBOURS, HEADS)
-    model.compile(
-        loss=tf.keras.losses.BinaryCrossentropy(),
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-        metrics=[
-            'accuracy',
-            tf.keras.metrics.Precision(),
-            tf.keras.metrics.Recall(),
-            tf.keras.metrics.AUC(),
-        ],
-    )
-    init=pd.read_json('model_init.json')
-    y_train=tf.constant(list(init['correct_candidate']))
-    cand_pos=tf.constant(list(init['candidate_position']))
-    neighbours=tf.constant(list(init['neighbour_id']))
-    neighbour_positions=tf.constant(list(init['neighbour_relative_position']))
-    field_id=tf.constant(list(init['field_id']))
-    masks=tf.constant(list(init['mask']))
-    model.train_on_batch((field_id,cand_pos,neighbours,neighbour_positions,masks),y_train) 
-    model.load_weights('amount_2/model')
-    return model
-
-model=init_amount_model()
+model=tf.keras.models.load_model('amount_model.h5')
 
 class InvoiceParser:
     def __init__(self,invoice_data,invoice_data_type):
@@ -66,6 +36,7 @@ class InvoiceParser:
 
            
     def extract(self,text):
+        text=genie.preprocess_text(text)
         self.date=self.date.union(genie.extract_date(text))
         self.distance=self.distance.union(genie.extract_distance(text))
         
