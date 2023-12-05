@@ -27,8 +27,7 @@ def preprocess_text(text):
     tokens = [stemmer.stem(word) for word in tokens]
     #lemmatization
     lemmatized = [lemmatizer.lemmatize(token) for token in tokens]
-    return lemmatized 
-
+    return lemmatized
 def extract_distance(text):
     token=preprocess_text(text)
     distance=set()
@@ -46,10 +45,3 @@ def extract_date(text):
     for d in dates:
         date.add(d.strftime("%d-%m-%Y"))
     return date
-
-def extract_amount(text): #it's just a dummy function (need to write algorithms to extract amount accurately)
-    starting_amount=re.search( r'[$₹]\s*(\d+\.?\d*)',text)
-    cost=set()
-    if starting_amount:
-        cost.add(float(starting_amount.group(1)))
-    return cost
