@@ -36,7 +36,6 @@ class InvoiceParser:
 
            
     def extract(self,text):
-        text=genie.preprocess_text(text)
         self.date=self.date.union(genie.extract_date(text))
         self.distance=self.distance.union(genie.extract_distance(text))
         

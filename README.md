@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-## 2023-10-09-ESS1
-=======
 [![GitHub last commit](https://img.shields.io/github/last-commit/panwar2001/essConveyanceClaim?label=Last%20commit&color=green&logo=git&logoColor=white&style=flat-square)](https://github.com/Defcon27/Data-Analysis-of-Indian-Automobile-dataset-using-Machine-Learning-in-R)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/panwar2001/essConveyanceClaim?label=Code%20size&logo=python&logoColor=white&style=flat-square)
 ![GitHub repo size](https://img.shields.io/github/repo-size/panwar2001/essConveyanceClaim?label=Repo%20size&color=red&logo=github&logoColor=white&style=flat-square)
@@ -204,4 +201,3 @@ You may look through the GitHub [issues](https://github.com/panwar2001/essConvey
     </td></tr>
 </table>
 <!-- readme: contributors -end -->
->>>>>>> ess
