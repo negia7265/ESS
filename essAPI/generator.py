@@ -16,7 +16,6 @@ def detect_candidate(text):
      return None
   if re.fullmatch(r"[0-9]*\.?[0-9]+",text):
       return 1
-  #TODO work has to be done here to extract candidates
   return None
 
 def preprocess(text):
@@ -48,7 +47,7 @@ class Generate_Extraction_Candidates:
                 return True
         return False
     def get_candidates(self,df):
-        cand=pd.DataFrame(columns=['field_id','candidate_position','neighbour_id','neighbour_relative_position','mask','correct_candidate','left','top','width','height','text'])
+        cand=pd.DataFrame(columns=['field_id','candidate_position','neighbour_id','neighbour_relative_position','correct_candidate','left','top','width','height','text'])
         cand['left']=df['left']
         cand['top']=df['top']
         cand['width']=df['width']
@@ -74,9 +73,7 @@ class Generate_Extraction_Candidates:
         candidates_df=self.get_candidates(df)
         df['text']=df['text'].apply(self.words_to_id)
         df.dropna(subset=['text'],inplace=True)
-        #Number of rows in dataframe
-        # Extract neighbour id's, neighbour relative positions,  
-        # mask to check which words are effective or not for data extraction.
+
         for i,cand_row in candidates_df.iterrows():               
             neighbour=dict()
             x1=(cand_row['left']+cand_row['width']/2)/self.width
@@ -106,25 +103,21 @@ class Generate_Extraction_Candidates:
                 continue
             neighbour=dict(sorted(neighbour.items(), key=lambda item: item[1]['dist'])[:num_neighbours])
             neighbours_remaining=num_neighbours-len(neighbour)
-            mask=list()
             neighbour_positions=list()
             neighbour_id=list()
             for key in neighbour:
                 neighbour_id.append(key)
                 neighbour_positions.append([neighbour[key]['left']-x1,neighbour[key]['top']-x2])
-                mask.append(False)
             while neighbours_remaining: 
                 neighbour_id.append(0)
                 neighbour_positions.append([-1,-1])
-                mask.append(True)
                 neighbours_remaining-=1
 
             candidates_df.at[i,'neighbour_id']=neighbour_id
             candidates_df.at[i,'neighbour_relative_position']=neighbour_positions
-            candidates_df.at[i,'mask']=mask
             candidates_df.at[i,'candidate_position']=list([float(x1),float(y1)]) 
         #TODO some of the candidate positions are coming na ,  dont know reason behind it , checked everything but still candidate positions are invalid sometime.
-        candidates_df.dropna(subset=['field_id','candidate_position','neighbour_id','neighbour_relative_position','mask','left','top','width','height'],inplace=True)
+        candidates_df.dropna(subset=['field_id','candidate_position','neighbour_id','neighbour_relative_position','left','top','width','height'],inplace=True)
         return candidates_df
 
     def generate_dataset(self,dir,annotated_file,num_neighbours):
