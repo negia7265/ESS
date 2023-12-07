@@ -1,4 +1,5 @@
-import datefinder
+# Search dates: https://dateparser.readthedocs.io/en/latest/introduction.html#search-for-dates-in-longer-chunks-of-text
+from dateparser.search import search_dates
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
@@ -28,6 +29,7 @@ def preprocess_text(text):
     #lemmatization
     lemmatized = [lemmatizer.lemmatize(token) for token in tokens]
     return lemmatized
+
 def extract_distance(text):
     token=preprocess_text(text)
     distance=set()
@@ -38,10 +40,11 @@ def extract_distance(text):
           distance.add(float(token[i]))
     return distance
 
-
+# dateparser is found to be better than datefinder
+# datefinder is not able to process such type of text :ex."Dec 13,2018 Dec 13,2018"  
 def extract_date(text):
-    dates = list(datefinder.find_dates(text, strict=True))
+    dates=search_dates(text)
     date=set()
     for d in dates:
-        date.add(d.strftime("%d-%m-%Y"))
+        date.add(d[1].strftime("%d-%m-%Y"))
     return date

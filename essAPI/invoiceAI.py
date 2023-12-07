@@ -56,7 +56,7 @@ class InvoiceParser:
         length=len(prediction)
         for index in range(length): 
             probability=float(prediction[index])
-            if probability>=0.5:
+            if probability>=0.4:
                 amt=float(df.at[index,'text'])
                 if amt in self.amount:
                    self.amount[amt]=max(self.amount[amt],probability)
