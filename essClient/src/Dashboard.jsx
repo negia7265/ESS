@@ -239,7 +239,6 @@ const App = () => {
               </p>
          </Dropzone>   
         <Button onClick={fileUploadSubmit}>Upload</Button>
-        </>}
         {selectedfile.map((data) => {
                           const { id, filename, fileimage, filesize } = data;
                            return  <FileContainer key={id} id={id}>
@@ -256,6 +255,7 @@ const App = () => {
                             </Delete>
                             </FileContainer>
                         })}
+                </>}
           { invoiceImages.map(image=>{
               return <ImageContainer key={nanoid()} >
                  <Image src={image} alt='invoice image' width={750}/>
@@ -269,16 +269,3 @@ const App = () => {
 
 
 export default App;
-
-/*
-const ImageDisplay=styled.div`{
- overflow-y:scroll;
- height:60vh;
- width:100%;
-}`
-invoiceImages.map(image=>{
- <ImageDisplay >
- <img src={image} alt='invoice image'/>
- </ImageDisplay>
-})
-*/
