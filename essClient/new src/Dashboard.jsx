@@ -3,21 +3,17 @@ import styled from 'styled-components';
 import { nanoid } from 'nanoid'
 import Candidates from './Candidates';
 import axios from 'axios';
+import {convertPdfToImages,readFileData} from './pdf2img';
 const Container = styled.div`
   align-items: center;
   justify-content: center;
   padding:2em;
+  width:100%;
 `;
-const Table=styled.table`
-width:40vw;
-align-items:center;
-justify-content:center;
-text-align:center;
-`
 const Dropzone = styled.div`
   width: 40vw;
   height: 20vh;
-  border: 1px dashed #ccc;
+  border: 5px dashed #ccc;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,7 +22,7 @@ const Dropzone = styled.div`
     opacity:0.8;
   }
   border-radius:1em;
-  background-color: #f0f0f0;
+  background-color: transparent;
 `;
 
 const FileInput = styled.input`
@@ -55,22 +51,24 @@ const Delete=styled.button`
  font-size:1em;
  background:transparent;
  padding:1em;
- overlow:hidden;
 `;
 
 const SplitScreen = styled.div`
   display: flex;
-  height: 100vh;
+  height: 93vh;
+  overflow:hidden;
 `;
 
 const LeftPane = styled.div`
   overflow-y:auto;
   background-color: #f0f0f0;
+  width:40vw;
 `;
 
 const RightPane = styled.div`
   overflow-y: auto;
-  background-color: #ffffff;
+  background-color: #f0f0f0;
+  width:60vw;
 `;
 
 
@@ -84,17 +82,24 @@ const FileContainer = styled.div`
   justify-content:space-between;
   border-radius: 1em;
 `;
-
+const ImageContainer=styled.div`{
+  height:60vh;
+  padding:0;
+}`
+const Image=styled.img`{
+  width:100vw;
+  pdding:0
+}`
 
 const App = () => {
     const [selectedfile, setSelectedFile] = useState([]);
-    const [essData,setessData]=useState({
-      'date':new Set(),
-      'distance':new Set(),
-      'amount':new Set(),
-      'source_address':new Set(),
-      'destination_address':new Set()
-    });
+    const [date,setDate]=useState({})
+    const [distance,setDistance]=useState({});
+    const [amount,setAmount]=useState({})
+    const [sourceAddress,setSourceAddress]=useState({});
+    const [destinationAddress,setDestinationAddress]=useState({});
+    const [invoiceImages,setInvoiceImages]=useState([])
+    const [preview,setPreview]=useState(false);
     const filesizes = (bytes, decimals = 2) => {
       if (bytes === 0) return "0 Bytes";
       const k = 1024;
@@ -111,7 +116,7 @@ const App = () => {
         reader.onloadend = () => {
           setSelectedFile((prevValue) => [
             ...prevValue,
-            {
+            {              
               id: nanoid() ,
               filename: e.target.files[i].name,
               filetype: e.target.files[i].type,
@@ -135,18 +140,25 @@ const App = () => {
   
     const fileUploadSubmit = (e) => {
       e.preventDefault();    
-      setessData(prevState => ({
-        ...prevState,
-        source_address: new Set(),
-        destination_address: new Set(),
-        amount: new Set(),
-        date: new Set(),
-        distance: new Set(),
-      }));
-
+      setSourceAddress({});
+      setDestinationAddress({});
+      setAmount({});
+      setDate({});
+      setDistance({});
+      setInvoiceImages([])
+      setPreview(true)
       if (selectedfile.length > 0) {
         const formData = new FormData();
         selectedfile.map((file)=>{
+          if(file.filetype=='application/pdf'){
+            convertPdfToImages(file.file_content).then((data)=>{
+              setInvoiceImages((prevImages)=>[...prevImages, ...data])
+            })
+          }else{
+            readFileData(file.file_content).then((data)=>{
+              setInvoiceImages((prevImages) => [...prevImages, data]);
+            })
+          }
           formData.append("file", file.file_content);      
                 if(file.filetype=='application/pdf'){
                   axios.post("http://127.0.0.1:5000/parse_invoice/api/pdf",formData, {
@@ -154,15 +166,22 @@ const App = () => {
                       "Content-Type": "multipart/form-data",
                     },
                   }).then((response) => {
-                      setessData((prevState) => {
-                        let updatedState = { ...prevState };
-                        updatedState.source_address=response.data.address
-                        updatedState.destination_address=(response.data.address)
-                        updatedState.amount=(response.data.amount)
-                        updatedState.date=response.data.date
-                        updatedState.distance=response.data.distance
-                        return updatedState
-                      });
+                    setSourceAddress((prevState)=>{
+                      return {...prevState, ...response.data.address}
+                    })
+                    setDestinationAddress((prevState)=>{
+                      return {...prevState, ...response.data.address}
+                    })
+                    setAmount((prevState)=>{
+                      return {...prevState, ...response.data.amount}
+                    })
+                    setDistance((prevState)=>{
+                    return {...prevState,...response.data.distance}
+                     })
+                    setDate((prevState)=>{
+                      console.log({...prevState,...response.data.date})
+                      return {...prevState,...response.data.date}
+                    })
                   })
                 }else if(file.filetype.startsWith('image')){
                   axios.post("http://localhost:8080/upload",formData, {
@@ -170,37 +189,48 @@ const App = () => {
                       "Content-Type": "multipart/form-data",
                     },
                   }).then((response) => {
-                      setessData((prevState) => {
-                        let updatedState = { ...prevState };
-                        updatedState.source_address=response.data.address
-                        updatedState.destination_address=(response.data.address)
-                        updatedState.amount=(response.data.amount)
-                        updatedState.date=response.data.date
-                        updatedState.distance=response.data.distance
-                        return updatedState
-                      });
-
+                    setSourceAddress((prevState)=>{
+                      return {...prevState, ...response.data.address}
+                    })
+                    setDestinationAddress((prevState)=>{
+                      return {...prevState, ...response.data.address}
+                    })
+                    setAmount((prevState)=>{
+                      return {...prevState, ...response.data.amount}
+                    })
+                    setDistance((prevState)=>{
+                    return {...prevState,...response.data.distance}
+                     })
+                    setDate((prevState)=>{
+                      return {...prevState,...response.data.date}
+                    })
+                  }).then(()=>{
+                    console.log(date)
                   })
                 }
+          setLoading(false)
         })           
         setSelectedFile([]);
+        e.target.value = null;
       } else {
         alert("Please select file");
       }
     };
+    
   return (
     <SplitScreen>
       <LeftPane>
-        <Candidates candidateType={'Date'} candidateValues={Array.from(essData.date)}/>
-        <Candidates candidateType={'Distance'} candidateValues={Array.from(essData.distance)}/>
-        <Candidates candidateType={'Amount'} candidateValues={Array.from(essData.amount)}/>
-        <Candidates candidateType={'Source Address'} candidateValues={Array.from(essData.source_address)}/>
-        <Candidates candidateType={'Destination Address'} candidateValues={Array.from(essData.destination_address)}/>
+        <Candidates candidateType={'Date'} predictions={Object.entries(date).sort((a,b)=>b[1]-a[1])}/>
+        <Candidates candidateType={'Distance'} predictions={Object.entries(distance).sort((a,b)=>b[1]-a[1])}/>
+        <Candidates candidateType={'Amount'} predictions={Object.entries(amount).sort((a,b)=>b[1]-a[1])}/>
+        <Candidates candidateType={'Source Address'} predictions={Object.entries(sourceAddress).sort((a,b)=>b[1]-a[1])}/>
+        <Candidates candidateType={'Destination Address'} predictions={Object.entries(destinationAddress).sort((a,b)=>b[1]-a[1])}/>
       </LeftPane>
       <RightPane>
       <Container>
+        {!preview&&<>
         <Dropzone>
-              <FileInput type="file" multiple onChange={InputChange} />
+              <FileInput type="file" multiple onChange={InputChange} accept=".pdf,image/*" />
               <img src='file.svg' height='40' width='40'/>
               <br/>
               <p><strong>Click to upload</strong> or drag and drop
@@ -209,6 +239,7 @@ const App = () => {
               </p>
          </Dropzone>   
         <Button onClick={fileUploadSubmit}>Upload</Button>
+        </>}
         {selectedfile.map((data) => {
                           const { id, filename, fileimage, filesize } = data;
                            return  <FileContainer key={id} id={id}>
@@ -225,6 +256,11 @@ const App = () => {
                             </Delete>
                             </FileContainer>
                         })}
+          { invoiceImages.map(image=>{
+              return <ImageContainer key={nanoid()} >
+                 <Image src={image} alt='invoice image' width={750}/>
+              </ImageContainer>
+          })}
     </Container>
       </RightPane>
     </SplitScreen>
@@ -233,3 +269,16 @@ const App = () => {
 
 
 export default App;
+
+/*
+const ImageDisplay=styled.div`{
+ overflow-y:scroll;
+ height:60vh;
+ width:100%;
+}`
+invoiceImages.map(image=>{
+ <ImageDisplay >
+ <img src={image} alt='invoice image'/>
+ </ImageDisplay>
+})
+*/

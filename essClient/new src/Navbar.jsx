@@ -54,6 +54,22 @@ const StyledList = styled.a`
   }
 `;
 
+const Button = styled.button`
+  background: -webkit-linear-gradient(left, #003366,#004080,#0059b3, #0073e6);
+  height:2.3em;
+  width:13em;
+  color:white;
+  font-weight:bold;
+  font-size:1em;
+  border-radius:1em;
+  cursor:pointer;
+  transition: opacity 0.3s ease-in-out;
+  &:hover{
+  transform: translateY(-5px);
+  color:white;
+  }
+`;
+
 const Navbar = () => {
   return (
     <StyledNavbar>
@@ -63,7 +79,11 @@ const Navbar = () => {
           <LogoHeading>ESS</LogoHeading>
         </LogoContainer>
         <NavigationLinks>
-          <StyledList href="/">Dashboard</StyledList>
+          <StyledList href="/">
+            <Button>
+              Automate Invoice Upload 
+            </Button>
+            </StyledList>
         </NavigationLinks>
       </ContainerNav>
     </StyledNavbar>

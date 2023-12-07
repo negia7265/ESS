@@ -5,7 +5,6 @@ import "./ESS.css";
 import Dashboard from "./Dashboard";
 import NavBar from './Navbar';
 import { BrowserRouter } from "react-router-dom";
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>     
