@@ -1,0 +1,21 @@
+{
+  "total": 1,
+  "amount": 2,
+  "fare": 3,
+  "net": 4,
+  "payable": 5,
+  "grand": 6,
+  "cash": 7,
+  "bill": 8,
+  "paid": 9,
+  "final": 10,
+  "charged": 11,
+  "payments": 12,
+  "RARE": 13,
+  "NUMBER": 14,
+  "vendor": 16,
+  "balance": 17,
+  "due": 18,
+  "value": 19,
+  "fee": 20
+}
