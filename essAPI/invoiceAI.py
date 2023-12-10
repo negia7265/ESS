@@ -12,7 +12,7 @@ if sys.version_info[0] < 3:
 else:
     from io import StringIO
 gen=Generate_Extraction_Candidates()   
-model=tf.keras.models.load_model('amount_model.keras')
+model=tf.keras.models.load_model('amount_best_model_87.h5')
 
 class InvoiceParser:
     def __init__(self,invoice_data,invoice_data_type):
@@ -56,7 +56,7 @@ class InvoiceParser:
         length=len(prediction)
         for index in range(length): 
             probability=float(prediction[index])
-            if probability>=0.4:
+            if probability>=0.1:
                 amt=float(df.at[index,'text'])
                 if amt in self.amount:
                    self.amount[amt]=max(self.amount[amt],probability)
