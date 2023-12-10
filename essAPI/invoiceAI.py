@@ -64,4 +64,6 @@ class InvoiceParser:
                    self.amount[amt]=probability
                        
     def getData(self):
+        #select best 4 scoring amounts 
+        self.amount=dict(sorted(self.amount.items(), key=lambda item: item[1])[:4])
         return {'date': self.date, 'distance': self.distance,'address':dict({'address':1}), 'amount':self.amount}
