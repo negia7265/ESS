@@ -40,7 +40,7 @@ class App(customtkinter.CTk):
 
     def treeViewConfigure(self):
         style = ttk.Style()
-        style.configure("Treeview", font=('Arial', 20),background="#2a2d2e",foreground="white",rowheight=25,fieldbackground="#343638",bordercolor="#343638",borderwidth=0)
+        style.configure("Treeview", font=('Arial', 10),background="#2a2d2e",foreground="white",rowheight=25,fieldbackground="#343638",bordercolor="#343638",borderwidth=0)
         style.map('Treeview', background=[('selected', '#22559b')])
         style.configure("Treeview.Heading",background="#565b5e",foreground="white",relief="flat")
         style.map("Treeview.Heading",background=[('active', '#3484F0')])    
@@ -93,7 +93,10 @@ class App(customtkinter.CTk):
         if correct in computed:
             self.total_correct[index]+=1
             return ['✔',correct]
-        return ['❌',computed[0]]
+        try:
+         return ['❌',computed[0]]
+        except:
+         print('computed',computed)
     
     def compare_address(self,correct,computed,index):
         if len(correct)==0:
@@ -146,6 +149,10 @@ class App(customtkinter.CTk):
                 continue
             tags=[]
             invoice_data= json.loads(response.text)
+            invoice_data['date']=list(invoice_data['date'])
+            invoice_data['distance']=list(invoice_data['distance'])
+            invoice_data['amount']=list(invoice_data['amount'])
+            invoice_data['address']=list(invoice_data['address'])
             date=self.compare(labeled_data[file_names[i]]['date'],invoice_data['date'],0)
             tags.extend([labeled_data[file_names[i]]['date'],convert_to_string(invoice_data['date'],'date')])
             distance=self.compare(labeled_data[file_names[i]]['distance'],invoice_data['distance'],1)
