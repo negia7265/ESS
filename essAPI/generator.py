@@ -1,7 +1,7 @@
+# generate extraction candidates which could be the true entity to be extracted from invoice
 import pandas as pd
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 import os
 import math
@@ -11,11 +11,13 @@ lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 vocab=json.load(open('vocab.json','r'))
 
+# detect type of candidate , if number then it could be amount / distance
+# For now amount is taken into consideration and value 1 is returned for it
 def detect_candidate(text):
   if pd.isna(text):
      return None
-  if re.fullmatch(r"[0-9]*\.?[0-9]+",text):
-      return 1
+  if re.fullmatch(r"[0-9]*\.?[0-9]+",text): 
+      return 1  # amount type = 1
   return None
 
 def preprocess(text):
@@ -28,17 +30,15 @@ def preprocess(text):
     text=text.lower()
     if text in stop_words:
         return None
-    # convert text word to it's root word 
-    stemmer = PorterStemmer()
-    text = stemmer.stem(text) 
-    #lemmatization
+    #lemmatization , convert word to it's root word
     return lemmatizer.lemmatize(text)
 
 class Generate_Extraction_Candidates:
     def __init__(self):
-        self.width=None
-        self.height=None
-        self.true_candidates=None
+        self.width=None  # width of invoice page
+        self.height=None # height of invoice page
+        self.true_candidates=None # Example: The amount which is the total amount in the invoice page
+    # check if amount is the total amount of invoice or not with the help of json labels. 
     def check_correctness(self,text):
         if pd.isna(text) or text=='':
             return None
@@ -46,6 +46,8 @@ class Generate_Extraction_Candidates:
             if float(text) in self.true_candidates:
                 return True
         return False
+    
+    # Form candidates dataframe which contains features of it's position and neighbour words.
     def get_candidates(self,df):
         cand=pd.DataFrame(columns=['field_id','candidate_position','neighbour_id','neighbour_relative_position','correct_candidate','left','top','width','height','text'])
         cand['left']=df['left']
@@ -58,22 +60,29 @@ class Generate_Extraction_Candidates:
            cand['correct_candidate']=df['text'].apply(self.check_correctness)
         cand.dropna(subset=['field_id','top','width','height','left','text'],inplace=True)
         return cand
+
+    # convert words to their numerical representation
+    # During model training features are learned and made from these numbers through keras dense layers in machine learning   
     def words_to_id(self,text):
-        if not pd.isna(text) and text.isalpha():
-            if text in vocab:
-                return vocab[text]
-        return None        
+        if pd.isna(text):
+            return None
+        if re.fullmatch(r"[0-9]*\.?[0-9]+",text):
+            return vocab["number"]
+        if text in vocab:
+            return vocab[text] 
+        return vocab["rare"]  #rare means the words that does not exist in vocabulary     
 
         
     def get_extraction_candidates(self,df,num_neighbours,true_candidates,height,width):
         self.height=height
         self.width=width
         self.true_candidates=true_candidates
-        df['text']=df['text'].apply(preprocess)
+        df['text']=df['text'].apply(preprocess)   #preprocess all the words 
         candidates_df=self.get_candidates(df)
         df['text']=df['text'].apply(self.words_to_id)
         df.dropna(subset=['text'],inplace=True)
-
+        
+        #Example: for each number get it's closest neighbour words with their positional features for model training  
         for i,cand_row in candidates_df.iterrows():               
             neighbour=dict()
             x1=(cand_row['left']+cand_row['width']/2)/self.width
@@ -81,10 +90,13 @@ class Generate_Extraction_Candidates:
             for j,neigh_row in df.iterrows():
                 if i==j:
                     continue
-                id=neigh_row['text']
+                id=neigh_row['text'] # earlier each word was converted to it's numerical value , so used here 
+                # positions of words need to be normalized 
+                # there centroid coordinate is taken in consideration
                 x2=(neigh_row['left']+neigh_row['width']/2)/self.width
                 y2=(neigh_row['top']+neigh_row['height']/2)/self.height
-                if x2>x1 or y2>y1+.2 or y2<y1-0.1:  #TODO put these values in parameters
+                #Ex. neighbours are searched towards left and half page upwards to the amount
+                if x2>x1 or y2>y1+.02 or y2<y1-0.1:  
                     continue
                 distance=math.dist([x1,y1],[x2,y2])
                 if id in neighbour:
@@ -98,25 +110,39 @@ class Generate_Extraction_Candidates:
                         'dist':distance,
                         'left':x2,'top':y2
                     }     
-                                        
+            # if an entity has no neighbours, then there is no point to train it so continue .
             if len(neighbour)==0:
                 continue
+            # sort to form n closest neighbours
             neighbour=dict(sorted(neighbour.items(), key=lambda item: item[1]['dist'])[:num_neighbours])
             neighbours_remaining=num_neighbours-len(neighbour)
             neighbour_positions=list()
             neighbour_id=list()
+            num_valid_values=0
             for key in neighbour:
+                # in vocab.json 18 and 19 are invalid values , they suggest no importance as amount neighbours 
+                # Model must not learn these values for true candidates. Example 1700 is amount but if it has no neighbours
+                # it must not learn it. 
+                if key!=18 and key!=19: 
+                   num_valid_values+=1 
                 neighbour_id.append(key)
                 neighbour_positions.append([neighbour[key]['left']-x1,neighbour[key]['top']-x2])
-            while neighbours_remaining: 
-                neighbour_id.append(0)
-                neighbour_positions.append([-1,-1])
+            
+            # if a number is true amount and it does not has valid neighbours then do not take it into consideration for training
+            if candidates_df.at[i,'correct_candidate']==True and num_valid_values==0:
+                continue
+            # To make the data consistent , like if 10 neighbours are needed and only 4 neighbours are present then other values
+            # need to be padded with zero's to feed machine learning model.
+            while neighbours_remaining: #used for masking
+                neighbour_id.append(0)  
+                neighbour_positions.append([-1,-1]) 
                 neighbours_remaining-=1
-
+    
             candidates_df.at[i,'neighbour_id']=neighbour_id
             candidates_df.at[i,'neighbour_relative_position']=neighbour_positions
             candidates_df.at[i,'candidate_position']=list([float(x1),float(y1)]) 
-        #TODO some of the candidate positions are coming na ,  dont know reason behind it , checked everything but still candidate positions are invalid sometime.
+            
+        # remove the invalid rows from the dataframe , the invalid rows has undefined values . 
         candidates_df.dropna(subset=['field_id','candidate_position','neighbour_id','neighbour_relative_position','left','top','width','height'],inplace=True)
         return candidates_df
 
@@ -130,7 +156,7 @@ class Generate_Extraction_Candidates:
             true_candidates=[annotated[file]['amount']] 
             for inv in inv_csv:
                df=pd.read_csv(f'{dir}/{invoice_dir}/{inv}')
-               df=self.get_extraction_candidates(df,num_neighbours,true_candidates,df.iloc[0]['height'],df.iloc[0]['width'])
+               df=self.get_extraction_candidates(df,num_neighbours,true_candidates,df['height'].max(),df['width'].max())
                if type(candidates)!=None:
                  if not df.empty:
                     candidates=pd.concat([candidates,df])
