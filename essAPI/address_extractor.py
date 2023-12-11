@@ -1,3 +1,14 @@
+# This code was made initially during internship 
+# It may help to extract address from invoice. The idea behind this is to use words position
+# along with words to form cluster such , the closest words form cluster of words. 
+# if these words contains indian city name or country(INDIA), or state , then definitely
+# it would be the address. The address in an invoice is generally in multi lines where 
+# space is sorrounded around it and may be labeled or not.
+# The following method worked , but it depends on how close the words are in an invoice 
+# some invoice has less distance words or other has more distance in between them. 
+# So sometimes unnecessary words may also get extracted along with address words. Example
+# 10 am xyz bazar, bengaluru. here 10 am may also get inserted depending upon closeness of words
+# later NER(named entity recognition machine learning model is used for this particular task)
 import re
 class ExtractAddress:
   def __init__(self,loc):
