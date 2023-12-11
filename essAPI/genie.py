@@ -29,16 +29,26 @@ def preprocess_text(text):
     lemmatized = [lemmatizer.lemmatize(token) for token in tokens]
     return lemmatized
 
+# heuristic/logic based approach to distance extraction
 def extract_distance(text):
+    # it is necessary to preprocess text because distance could be written in 
+    # format like 10Km , 10 kilometer, 30 kilometers ,etc. To convert it into 
+    # root words and seperating number from word is necessary to extract distance.
     token=preprocess_text(text)
     distance=set()
-    km={'km','kilomet','kilometr'}
-    pattern = re.compile('[0-9]*.?[0-9]+$')
+    km={'km','kilomet','kilometr'} # found these three types of words for distance in invoice.
+    # similarly meter, metres, m, miles etc can be used to extract distance .
+    pattern = re.compile('[0-9]*.?[0-9]+$') # pattern to check for a number
     for i in range(len(token)-1):
       if pattern.match(token[i]) and token[i+1] in km:
           distance.add(float(token[i]))
     return distance
 
+# used datefinder instead of dateparser because , dateparser is getting many dates 
+# from invoice some are even incorrect. Best package found suitable is datefinder
+# Although sometimes datefinder could mistake like if two times date is written 
+# example: 18 march 2001 18 march 2001 then it is not able to parse date.
+# out of all present packages datefinder is found to be the best
 def extract_date(text):
     dates = list(datefinder.find_dates(text, strict=True))
     date=set()
