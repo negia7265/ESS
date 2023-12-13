@@ -79,5 +79,5 @@ class InvoiceParser:
     def getData(self):
         # select best 4 scoring amounts and return all the invoice details
         # 4 is a random number it depends upon need of the developer/client
-        self.amount=dict(sorted(self.amount.items(), key=lambda item: item[1])[:4])
+        self.amount=dict(sorted(self.amount.items(), key=lambda item: item[1],reverse=True)[:4])
         return {'date': self.date, 'distance': self.distance,'address':dict({'address':1}), 'amount':self.amount}
