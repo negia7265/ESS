@@ -1,4 +1,5 @@
-import datefinder
+from dateparser.search import search_dates 
+from dateparser_data.settings import default_parsers
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
@@ -8,6 +9,7 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 stop_words.remove('m')  #meter word must not be removed during preprocessing
+parsers = [parser for parser in default_parsers if parser != 'relative-time']
 
 def preprocess_text(text):
     #remove punctuation mark from the text
@@ -36,22 +38,23 @@ def extract_distance(text):
     # root words and seperating number from word is necessary to extract distance.
     token=preprocess_text(text)
     distance=set()
-    km={'km','kilomet','kilometr'} # found these three types of words for distance in invoice.
-    # similarly meter, metres, m, miles etc can be used to extract distance .
+    km={'km','kilomet','kilometr','metr','met','m'} # found these three types of words for distance in invoice.
     pattern = re.compile('[0-9]*.?[0-9]+$') # pattern to check for a number
     for i in range(len(token)-1):
       if pattern.match(token[i]) and token[i+1] in km:
           distance.add(float(token[i]))
     return distance
 
-# used datefinder instead of dateparser because , dateparser is getting many dates 
-# from invoice some are even incorrect. Best package found suitable is datefinder
-# Although sometimes datefinder could mistake like if two times date is written 
+# Out of all present packages dateparser is found to be the best
+# One of the packages earlier used was datefinder
+# datefinder could mistake like if two times date is written 
 # example: 18 march 2001 18 march 2001 then it is not able to parse date.
-# out of all present packages datefinder is found to be the best
 def extract_date(text):
-    dates = list(datefinder.find_dates(text, strict=True))
+    dates = search_dates(text,settings={'STRICT_PARSING': True,'PARSERS': parsers})
     date=set()
-    for d in dates:
-        date.add(d.strftime("%d-%m-%Y"))
+    if dates==None:
+        return date
+    for d in dates:  #d[0] is the actual string format
+        date.add(d[1].strftime("%d-%m-%Y"))
     return date
+
