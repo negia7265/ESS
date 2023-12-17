@@ -160,8 +160,7 @@ const App = () => {
             })
           }
           formData.append("file", file.file_content);      
-                if(file.filetype=='application/pdf'){
-                  axios.post("http://127.0.0.1:5000/parse_invoice/api/pdf",formData, {
+                  axios.post("http://127.0.0.1:5000/parse_invoice/api",formData, {
                     headers: {
                       "Content-Type": "multipart/form-data",
                     },
@@ -183,31 +182,6 @@ const App = () => {
                       return {...prevState,...response.data.date}
                     })
                   })
-                }else if(file.filetype.startsWith('image')){
-                  axios.post("http://localhost:8080/upload",formData, {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                    },
-                  }).then((response) => {
-                    setSourceAddress((prevState)=>{
-                      return {...prevState, ...response.data.address}
-                    })
-                    setDestinationAddress((prevState)=>{
-                      return {...prevState, ...response.data.address}
-                    })
-                    setAmount((prevState)=>{
-                      return {...prevState, ...response.data.amount}
-                    })
-                    setDistance((prevState)=>{
-                    return {...prevState,...response.data.distance}
-                     })
-                    setDate((prevState)=>{
-                      return {...prevState,...response.data.date}
-                    })
-                  }).then(()=>{
-                    console.log(date)
-                  })
-                }
           setLoading(false)
         })           
         setSelectedFile([]);
