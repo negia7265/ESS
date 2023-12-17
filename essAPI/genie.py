@@ -5,7 +5,8 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import re # For preprocessing
 from nltk.stem import WordNetLemmatizer
-
+import cv2
+import numpy as np
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 stop_words.remove('m')  #meter word must not be removed during preprocessing
@@ -58,3 +59,28 @@ def extract_date(text):
         date.add(d[1].strftime("%d-%m-%Y"))
     return date
 
+def preprocess_img(img):
+    # Decode and convert to grayscale
+    img = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_GRAYSCALE)
+    # Denoising Image
+    img = cv2.fastNlMeansDenoising( img, None, 15, 7, 21 )   
+    # Image Binarization
+    img=cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    # Perform morphological operations (erosion and dilation)
+    kernel = np.ones((1, 1), np.uint8)
+    return cv2.morphologyEx(img, cv2.MORPH_DILATE, kernel)
+
+
+def getBox(img):
+    # Specify structure shape and kernel size.Kernel size increases or decreases the area of the rectangle to be detected. 
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 0))   
+    # Appplying dilation on the threshold image 
+    dilation = cv2.dilate(img, rect_kernel, iterations = 1) 
+    # Finding contours 
+    contours, _ = cv2.findContours(dilation,  cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
+    boxes=[]
+    for cnt in contours[::-1]: 
+        x, y, w, h = cv2.boundingRect(cnt) 
+        cropped = img[y:y + h, x:x + w]
+        boxes.append(pytesseract.image_to_string(cropped,config=f'--oem 3 --psm 1 -c tessedit_char_whitelist={char_list}'))
+    return boxes
