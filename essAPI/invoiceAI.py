@@ -2,15 +2,9 @@ import genie # a custom set of functions made to extract date , preprocessing te
 import tensorflow as tf #used for machine learning
 import pandas as pd # Most important to build dataframes used as dataset or input to ml model
 import pdfplumber # best reliable open source project to parse pdf 
-import json
-from io import BytesIO
 from generator import Generate_Extraction_Candidates
 import os
-import sys
-if sys.version_info[0] < 3: 
-    from StringIO import StringIO
-else:
-    from io import StringIO
+import pytesseract
 gen=Generate_Extraction_Candidates()   
 model=tf.keras.models.load_model('amount_best_model_87.h5')
 
@@ -38,15 +32,19 @@ class InvoiceParser:
                 df.rename(columns = {'bottom':'height','x1':'width','x0':'left'}, inplace = True)
                 self.extract_amount(df,page.height,page.width)
             invoice.close()
-        else:    
-            # tsv is a tabular format similar to csv which contains positional features of each word present in invoice.
-            df=pd.read_csv(StringIO(invoice_data['tsv']), sep='\\t', encoding='utf_16le', engine='python', skipfooter=2,names=['level','page_num','block_num','par_num','line_num','word_num','left','top','width','height','conf','text'])
-            self.extract(invoice_data['text'])
-            # Tesseract ocr provides image dimensions in it's tsv data
+        else:  
+            img=genie.preprocess_img(invoice_data)  
+            text=pytesseract.image_to_string(img,lang='eng',config=f'--tessdata-dir "{os.getcwd()}"')
+            self.extract(text)
+            # dataframe contains positional features of each word present in invoice.
+            df=pytesseract.image_to_data(img,lang='eng',config=f'--tessdata-dir "{os.getcwd()}"', output_type='data.frame')
+            # Tesseract ocr provides image dimensions in it's dataframe 
             self.extract_amount(df,df['height'].max(),df['width'].max())
+
   # The date , distance are accurate and has less candidates so there probability is set
   # to 100% such and returned to client side.
     def extract(self,text):
+        print(text)
         for d in genie.extract_date(text):
             self.date[d]=1
         for dist in genie.extract_distance(text):

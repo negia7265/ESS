@@ -17,35 +17,23 @@ app.config['CORS_HEADERS'] = 'Content-Type' # configuring cors headers to conten
 def index():
     return render_template('404.html'), 404
 
-# The following api can be called to parse pdf
-# api -  http://127.0.0.1:5000/parse_invoice/api/pdf
-# once deployed the api will get renamed
-@app.route('/parse_invoice/api/pdf', methods=['POST'])
+@app.route('/parse_invoice/api', methods=['POST'])
 def extract_invoice_pdf():
+    if len(request.files)!=1:
+        response=jsonify({'error': 'Invalid number of invoice ! please upload 1 invoice image/pdf to process.'})
+        response.status_code=404
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return  response  
     FILE = request.files['file']
-    if not FILE:
-        response=jsonify({'error': 'File Not Uploaded'})
-    elif FILE.mimetype!='application/pdf':
-        response= jsonify({'error': 'Invalid file type.'})
-    else:        
+    if FILE.mimetype=='application/pdf':        
         parser = InvoiceParser(BytesIO(FILE.read()),'pdf')
         response = jsonify(parser.getData())
-    
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return  response  #return json data to client side
-
-# This api end point receives tsv data of invoice image . The invoice image is 
-# parsed in node.js and tsv data along with the text is received here to further
-# parse and extract data from the content.
-@app.route('/parse_invoice/api/tsv', methods=['POST'])
-def extract_invoice_image():
-    data = request.get_json()
-    #json validation
-    if 'tsv' not in data or 'text' not in data or len(data)!=2 :
-        response=jsonify({'error': 'Invalid data to process!'})
-    else:    
-        parser = InvoiceParser(data,'tsv')        
-        response = jsonify(parser.getData())
+    elif FILE.mimetype.startswith('image'):
+        parser = InvoiceParser(FILE.read(),'image')        
+        response = jsonify(parser.getData())         
+    else:
+        response=jsonify({'error': 'Invalid file type.'})
+        response.status_code=404
     response.headers.add('Access-Control-Allow-Origin', '*')
     return  response  #return json data to client side
   
