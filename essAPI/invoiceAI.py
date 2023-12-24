@@ -44,7 +44,6 @@ class InvoiceParser:
   # The date , distance are accurate and has less candidates so there probability is set
   # to 100% such and returned to client side.
     def extract(self,text):
-        print(text)
         for d in genie.extract_date(text):
             self.date[d]=1
         for dist in genie.extract_distance(text):

@@ -1,8 +1,9 @@
 from flair.data import Sentence
 from flair.nn import Classifier
 from flair.models import SequenceTagger
-from city import cities
+import json
 tagger = SequenceTagger.load('ner-large-model')
+cities=json.load('location.json')
 
 states = ["rajasthan", "karnataka", "uttarakhand", "andhra pradesh", "arunachal pradesh", "assam", "bihar", "chhattisgarh", "goa", "gujarat", "haryana", "himachal pradesh", "jharkhand", "kerala", "madhya pradesh", "maharashtra", "manipur", "meghalaya", "mizoram", "nagaland", "odisha", "punjab", "rajasthan", "sikkim", "tamil nadu", "telangana", "tripura", "uttar pradesh", "west bengal", "jammu and kashmir", "ladakh", "andaman and nicobar islands", "chandigarh", "dadra and nagar haveli and daman and diu", "lakshadweep", "delhi", "puducherry"]
 
@@ -27,10 +28,7 @@ def get_address(text):
 
     # run NER over sentence
     tagger.predict(sentence)
-
-    # print the sentence with all annotations
-    # print(sentence)
-
+    
     # Extract tokens labeled as 'LOC' from the named entities
     loc_tokens = [str(entity) for entity in sentence.get_spans(
         'ner') if 'LOC' in str(entity.labels[0])]

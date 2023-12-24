@@ -1,5 +1,7 @@
 #Tensorflow implementation of representational learning to information extraction using subclassing
-#for further queries please contact me ayush.panwar@tallysolutions.com 
+#This solution is presented as exact implementation mentioned in google's research paper, 
+#If something feels wrong or some improvement, please do contact me at ayushpanwar691@gmail.com, 
+#I am always available and much interested to learn & improve this machine learning model implementation.   
 #N=> number of neighbouring words of a candidate (Example: 10 )
 #d=> embedding dimension size (Example: 100 dimensional vector=[1,2,1....3])
 import tensorflow as tf

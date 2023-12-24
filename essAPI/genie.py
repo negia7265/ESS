@@ -12,7 +12,7 @@ stop_words = set(stopwords.words('english'))
 stop_words.remove('m')  #meter word must not be removed during preprocessing
 parsers = [parser for parser in default_parsers if parser != 'relative-time']
 
-def preprocess_text(text):
+def preprocess_text(text,ignore_root_word=False):
     #remove punctuation mark from the text
     text=text.translate(str.maketrans('','',''',!"#%&'()*+-/:;<=>?@[\]^_`{|}~$₹'''))
     #remove new line characters
@@ -25,6 +25,8 @@ def preprocess_text(text):
     tokens=word_tokenize(text)
     # remove stop words 
     tokens = [word for word in tokens if word not in stop_words]
+    if ignore_root_word:
+        return tokens
     #all words to root words
     stemmer = PorterStemmer()
     tokens = [stemmer.stem(word) for word in tokens]
@@ -33,25 +35,29 @@ def preprocess_text(text):
     return lemmatized
 
 # heuristic/logic based approach to distance extraction
+# To extract distance first representational learning could be applied , 
+# distance could be scored as having "distance" as label or distance unit in front or left or down of a number
+# Next feature is maximum number would be the exact distance along with labels.
+ 
 def extract_distance(text):
     # it is necessary to preprocess text because distance could be written in 
     # format like 10Km , 10 kilometer, 30 kilometers ,etc. To convert it into 
     # root words and seperating number from word is necessary to extract distance.
-    token=preprocess_text(text)
+    token=preprocess_text(text,ignore_root_word=False)
     distance=set()
-    km={'km','kilomet','kilometr','metr','met','m'} # found these three types of words for distance in invoice.
+    dist_pattern=re.compile('^(km|kilomet|met|m)\w*') # found these three types of words for distance in invoice.
     pattern = re.compile('[0-9]*.?[0-9]+$') # pattern to check for a number
     for i in range(len(token)-1):
-      if pattern.match(token[i]) and token[i+1] in km:
+      if pattern.match(token[i]) and dist_pattern.match(token[i+1]):
           distance.add(float(token[i]))
     return distance
 
-# Out of all present packages dateparser is found to be the best
+# Out of all present packages dateparser is found to be the best as it's generalized
 # One of the packages earlier used was datefinder
-# datefinder could mistake like if two times date is written 
-# example: 18 march 2001 18 march 2001 then it is not able to parse date.
+# datefinder could mistake like if two times date is written  
+# example: "18 march 2001 18 march 2001" it is not able to parse date.
 def extract_date(text):
-    dates = search_dates(text,settings={'STRICT_PARSING': True,'PARSERS': parsers})
+    dates = search_dates(text,settings={'STRICT_PARSING': True,'PARSERS': parsers,'DATE_ORDER': 'DMY'})
     date=set()
     if dates==None:
         return date
@@ -70,17 +76,37 @@ def preprocess_img(img):
     kernel = np.ones((1, 1), np.uint8)
     return cv2.morphologyEx(img, cv2.MORPH_DILATE, kernel)
 
-
-def getBox(img):
+# iterate each candidate and preprocess to remove words which are non relevant to address
+def preprocess_address_candidate(text):
+    delimeter_count=0 # here comma(,) is the delimeter in address
+    for char in text:
+        delimeter_count+=1
+    if delimeter_count==0:
+        return None
+    tokens=preprocess_text(text,ignore_root_word=True)
+    location_found=False
+    for token in tokens:
+        if token in location:
+            location_found=True 
+            break
+    if location_found==False:
+        return None 
+    
+     
+def get_indian_address_candidates(img):
+    img=preprocess_img(img)
     # Specify structure shape and kernel size.Kernel size increases or decreases the area of the rectangle to be detected. 
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 0))   
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9,9))   
     # Appplying dilation on the threshold image 
-    dilation = cv2.dilate(img, rect_kernel, iterations = 1) 
+    dilation = cv2.dilate(img, rect_kernel, iterations = 4) 
     # Finding contours 
     contours, _ = cv2.findContours(dilation,  cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
-    boxes=[]
+    indian_addresses=[]
     for cnt in contours[::-1]: 
         x, y, w, h = cv2.boundingRect(cnt) 
         cropped = img[y:y + h, x:x + w]
-        boxes.append(pytesseract.image_to_string(cropped,config=f'--oem 3 --psm 1 -c tessedit_char_whitelist={char_list}'))
-    return boxes
+        text=pytesseract.image_to_string(cropped)
+        text=preprocess_address_candidate(text)
+        if text:
+          indian_addresses.append(text)
+    return indian_addresses
