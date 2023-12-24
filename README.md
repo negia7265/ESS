@@ -1,18 +1,8 @@
-[![GitHub last commit](https://img.shields.io/github/last-commit/panwar2001/essConveyanceClaim?label=Last%20commit&color=green&logo=git&logoColor=white&style=flat-square)](https://github.com/Defcon27/Data-Analysis-of-Indian-Automobile-dataset-using-Machine-Learning-in-R)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/panwar2001/essConveyanceClaim?label=Code%20size&logo=python&logoColor=white&style=flat-square)
-![GitHub repo size](https://img.shields.io/github/repo-size/panwar2001/essConveyanceClaim?label=Repo%20size&color=red&logo=github&logoColor=white&style=flat-square)
-![GitHub stars](https://img.shields.io/github/stars/panwar2001/essConveyanceClaim?label=Stars&logo=github&style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/panwar2001/essConveyanceClaim?label=Issues&color=yellow&logo=github&style=flat-square)
-<!-- [![Build Status](https://travis-ci.org/LexPredict/lexpredict-lexnlp.svg?branch=master)](https://travis-ci.org/LexPredict/lexpredict-lexnlp) -->
-<!-- [![Coverage Status](https://coveralls.io/repos/github/panwar2001/essConveyanceClaim/badge.svg?branch=main)](https://coveralls.io/github/panwar2001/essConveyanceClaim/) -->
-<!-- [![Docs](https://readthedocs.org/projects/lexpredict-lexnlp/badge/?version=docs-0.1.6)](http://lexpredict-lexnlp.readthedocs.io/en/docs-0.1.6/) -->
-
 <h3 align="center"> ESS conveyance claim simplification  🧾 </h3>
-
 
 Solution ✅ to automate the  prefilling of the form of a portal with cab invoice(transport bill) PDF details. The filling/ uploading of bill details include bill date, mode of convince( travel mode) such as {OLA , UBER or other aggregator services }, select purpose (office to home or home to office) , pickup address , Destination address, Distance, Amount . An invoice document as proof is uploaded which requires manual task to extract and fill details from it, so there is need for extraction of the data from it to save time and efforts with correctness.
 
-### 🔗 [Collection of Cab invoice pdf's used for testing](https://drive.google.com/drive/folders/1bg5GbeJ-wP5Ril4ywik_4jbotRGcMMEK?usp=share_link)  
+### 🔗 [Collection of Cab aggregator services invoice dataset](https://drive.google.com/drive/folders/1bg5GbeJ-wP5Ril4ywik_4jbotRGcMMEK?usp=share_link)  
 
 <br>
 
@@ -20,11 +10,10 @@ Solution ✅ to automate the  prefilling of the form of a portal with cab invoic
 ![Python Badge](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Javascript](https://img.shields.io/badge/javascript-grey?style=for-the-badge&logo=javascript)
 ![React](https://img.shields.io/badge/react-grey?style=for-the-badge&logo=react)
-![Node.JS](https://img.shields.io/badge/Node.js-grey?style=for-the-badge&logo=node.js)
 ![Flask](https://img.shields.io/badge/Flask-grey?style=for-the-badge&logo=flask)
 
 #### 📊 Get Presentation Here  
-[![PDF](https://img.shields.io/badge/PRESENTATION-D83B01.svg?&style=for-the-badge&logo=pdf&logoColor=white)]()
+[![PDF](https://img.shields.io/badge/PRESENTATION-D83B01.svg?&style=for-the-badge&logo=pdf&logoColor=white)](https://tallywiki.tallysolutions.com/x/n6ANDw)
 
 
 <p><br><p>
@@ -84,36 +73,7 @@ https://github.com/UB-Mannheim/tesseract/wiki
 
 ### 🐳 [Docker Setup](https://docs.docker.com/engine/install/)
 
-### Client-Side Docker image build
-
-```bash
-# change directory to essClient => /essClient
-cd essClient 
-
-# Build Client Docker Image  
-sudo docker build -t  ess-client . 
-
-# Run Docker Image 
-sudo docker run --network host ess-client 
-
-# Get Docker Container Logs
-sudo docker logs ess-client
-
-# Access ess-client: http://localhost:5173/
-
-#To view all the docker images running write the following command in another terminal , this will contain the container id which will be required to stop the image
-sudo docker ps -a
-
-#To stop the image run the command example- sudo docker stop 55f6fd03d27e
-sudo docker stop container-id
-
-#To delete the docker image 
-sudo docker image rm -f ess-client
-
-#If changes are made to the code to view the changes in docker , the image has to be rebuild from starting.
-```
-
-### Server-Side Docker image build
+### API Docker image build
 
 ```bash
 # change directory to essAPI => /essAPI
@@ -155,6 +115,35 @@ git status
 git diff
 
 git checkout
+```
+
+## Citation
+
+##### Representation Learning for Information Extraction from Form-like Documents
+_Bodhisattwa Prasad Majumder, Navneet Potti, Sandeep Tata, James B. Wendt, Qi Zhao, Marc Najork_ <br>
+
+**Abstract** <br>
+We propose a novel approach using representation learning for tackling the problem of extracting structured information from form-like
+document images. We propose an extraction
+system that uses knowledge of the types of the
+target fields to generate extraction candidates,
+and a neural network architecture that learns a
+dense representation of each candidate based
+on neighboring words in the document. These
+learned representations are not only useful in
+solving the extraction task for unseen document templates from two different domains,
+but are also interpretable, as we show using
+loss cases.
+
+[[Paper]](https://storage.googleapis.com/pub-tools-public-publication-data/pdf/59f3bb33216eae711b36f3d8b3ee3cc67058803f.pdf) [[Google Blog]](https://ai.googleblog.com/2020/06/extracting-structured-data-from.html) 
+
+```
+@article{
+  title={Representation Learning for Information Extraction from Form-like Documents},
+  author={Bodhisattwa Prasad Majumder, Navneet Potti, Sandeep Tata, James B. Wendt, Qi Zhao, Marc Najork},
+  journal = {Association for Computational Linguistics},
+  year={2020}
+}
 ```
 
 ### Contribution Guide
