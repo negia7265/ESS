@@ -1,22 +1,24 @@
-import genie # a custom set of functions made to extract date , preprocessing text and distance
-import tensorflow as tf #used for machine learning
+import genie # a custom set of functions made to extract date,distance & address
+import tensorflow as tf # used for deep learning 
 import pandas as pd # Most important to build dataframes used as dataset or input to ml model
 import pdfplumber # best reliable open source project to parse pdf 
 from generator import Generate_Extraction_Candidates
 import os
 import pytesseract
+import numpy as np
 gen=Generate_Extraction_Candidates()   
 model=tf.keras.models.load_model('amount_best_model_87.h5')
-
-# This class receives either an invoice pdf or image , then with the help of heuristics, 
-# best python packages, machine learning for information extraction from unstructured 
-# invoice is done to extract date, distance, amount and address.  
+# This class receives either an invoice pdf or image ,  
+# information extraction from unstructured invoice is done to extract date,
+# distance, amount and address.  
 class InvoiceParser:
     def __init__(self,invoice_data,invoice_data_type):
-        # dictionary is used to get unique instances of date, distance, amount
         self.date=dict({})
         self.distance=dict({})
         self.amount=dict({})
+        self.address=dict({})
+        self.highest_probability=None
+        self.total_amount=None
         if invoice_data_type=='pdf':
             invoice = pdfplumber.open(invoice_data)
             for page in invoice.pages:
@@ -24,30 +26,42 @@ class InvoiceParser:
                 # bold fonts can be considered double /overlapped lines so it is used here.  
                 page=page.dedupe_chars(tolerance=1)
                 # The text positional features along with text itself is extracted from 
-                # pdf as well as image as ml model input
+                # pdf to feed as input to ml model.
                 df=pd.DataFrame(page.extract_words())
+                if df.empty: # discard empty invoice page and continue with other pages
+                    continue
                 df['bottom']=df['bottom']-df['top']
                 df['x1']=df['x1']-df['x0']
                 self.extract(page.extract_text())
                 df.rename(columns = {'bottom':'height','x1':'width','x0':'left'}, inplace = True)
                 self.extract_amount(df,page.height,page.width)
+                # convert invoice page to image with 300 DPI image quality , black and white color.
+                img=np.array(page.to_image(resolution=300).original.convert('L'))
+                if len(self.address)<2:
+                    for addr in genie.get_address(img):
+                        self.address[addr]=1
+                        print(addr)
+                        if len(self.address)==2:
+                            break
             invoice.close()
         else:  
             img=genie.preprocess_img(invoice_data)  
+            for addr in genie.get_address(img):
+               self.address[addr]=1
             text=pytesseract.image_to_string(img,lang='eng',config=f'--tessdata-dir "{os.getcwd()}"')
             self.extract(text)
             # dataframe contains positional features of each word present in invoice.
             df=pytesseract.image_to_data(img,lang='eng',config=f'--tessdata-dir "{os.getcwd()}"', output_type='data.frame')
+            if not df.empty:
             # Tesseract ocr provides image dimensions in it's dataframe 
-            self.extract_amount(df,df['height'].max(),df['width'].max())
-
-  # The date , distance are accurate and has less candidates so there probability is set
-  # to 100% such and returned to client side.
+               self.extract_amount(df,df['height'].max(),df['width'].max())
+                           
     def extract(self,text):
         for d in genie.extract_date(text):
-            self.date[d]=1
-        for dist in genie.extract_distance(text):
-            self.distance[dist]=1
+            self.date[d]=1 
+        dist=genie.extract_distance(text)
+        if dist!=0:
+          self.distance[dist]=1
                     
     def extract_amount(self,data,height,width):
         #Height and width are dimensions of invoice
@@ -65,16 +79,14 @@ class InvoiceParser:
         prediction=model.predict((field_id,cand_pos,neighbours,neighbour_positions))
         # for each prediction select the amounts with their probability of being total amount
         length=len(prediction)
-        for index in range(length): 
-            probability=float(prediction[index])
-            amt=float(df.at[index,'text'])
-            if amt in self.amount:
-                self.amount[amt]=max(self.amount[amt],probability)
-            else:
-                self.amount[amt]=probability
+        for index in range(length):
+           amount=float(df.at[index,'text']) 
+           probability=float(prediction[index])
+           if self.highest_probability==None or probability>self.highest_probability:
+              self.total_amount=amount
+              self.highest_probability=probability                                 
                        
     def getData(self):
-        # select best 4 scoring amounts and return all the invoice details
-        # 4 is a random number it depends upon need of the developer/client
-        self.amount=dict(sorted(self.amount.items(), key=lambda item: item[1],reverse=True)[:4])
-        return {'date': self.date, 'distance': self.distance,'address':dict({'address':1}), 'amount':self.amount}
+        if self.amount!=None:
+           self.amount[self.total_amount]=self.highest_probability
+        return {'date': self.date, 'distance': self.distance,'address':self.address, 'amount':self.amount}
