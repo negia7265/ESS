@@ -34,13 +34,13 @@
   }
   input:focus {
     outline: 0;
-    border-color: #3066b1;
+    border-color: #ffc632;
   }
   input:focus + .input-icon i {
-    color: #3066b1;
+    color: #ffc632;
   }
   input:focus + .input-icon:after {
-    border-right-color: #3066b1;
+    border-right-color: #ffc632;
   }
   input[type="radio"] {
     display: none;
@@ -68,9 +68,9 @@
   input:checked + label:before,
   select:focus,
   select:active {
-    background-color: #3066b1;
+    background-color: #ffc632;
     color: #fff;
-    border-color: #3066b1;
+    border-color: #ffc632;
   }
   input[type="checkbox"] {
     display: none;
@@ -226,3 +226,7 @@
     transform: translateY(-1px);
   }
 }
+
+/* #ffc632 Golden Yellow
+#3066b1 Blue  */
+
