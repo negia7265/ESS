@@ -59,7 +59,11 @@ export const Form = (props) => {
                 onChange={handleDate}
               />
               <div class="input-icon">
-                <i class="fa fa-calendar" aria-hidden="true"></i>
+                <i
+                  style={{ color: "#ffc632" }}
+                  class="fa fa-calendar"
+                  aria-hidden="true"
+                ></i>
               </div>
             </div>
             <div
@@ -74,7 +78,11 @@ export const Form = (props) => {
                 onChange={handleDistance}
               />
               <div class="input-icon">
-                <i class="fa fa-car" aria-hidden="true"></i>
+                <i
+                  style={{ color: "#ffc632" }}
+                  class="fa fa-car"
+                  aria-hidden="true"
+                ></i>
               </div>
             </div>
             <div
@@ -89,7 +97,11 @@ export const Form = (props) => {
                 onChange={handleAmount}
               />
               <div class="input-icon">
-                <i class="fa fa-inr" aria-hidden="true"></i>
+                <i
+                  style={{ color: "#ffc632" }}
+                  class="fa fa-inr"
+                  aria-hidden="true"
+                ></i>
               </div>
             </div>
             <div
@@ -104,7 +116,11 @@ export const Form = (props) => {
                 onChange={handleSource}
               />
               <div class="input-icon">
-                <i class="fa fa-compass" aria-hidden="true"></i>
+                <i
+                  style={{ color: "#ffc632" }}
+                  class="fa fa-compass"
+                  aria-hidden="true"
+                ></i>
               </div>
             </div>
             <div
@@ -119,7 +135,11 @@ export const Form = (props) => {
                 onChange={handleDestination}
               />
               <div class="input-icon">
-                <i class="fa fa-compass" aria-hidden="true"></i>
+                <i
+                  style={{ color: "#ffc632" }}
+                  class="fa fa-compass"
+                  aria-hidden="true"
+                ></i>
               </div>
             </div>
           </div>

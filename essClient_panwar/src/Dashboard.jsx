@@ -6,7 +6,7 @@ import axios from "axios";
 import { convertPdfToImages, readFileData } from "./pdf2img";
 import Preview from "./Preview";
 import { Form } from "./Form";
-
+import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 const Container = styled.div`
   align-items: center;
   justify-content: center;
@@ -77,12 +77,13 @@ const RightPane = styled.div`
 const FileContainer = styled.div`
   width: 40vw;
   margin-top: 0.5em;
-  height: 10vh;
-  border: 1px solid grey;
+  height: 7vh;
+  border: 0.5px solid grey;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 1em;
+  border-radius: 0.4em;
+  font-weight: bold;
 `;
 const ImageContainer = styled.div`
    {
@@ -164,7 +165,50 @@ const SliderTab = styled.div`
   background: -webkit-linear-gradient(left, #003366, #004080, #0059b3, #0073e6);
   ${(props) => props.state != "login" && "left: 50%"};
 `;
+//Styled components for the File Upload Button
+export const StyledButton = styled.button`
+  background: #3066b1;
+  color: #fff;
+  border: none;
+  position: relative;
+  height: 60px;
+  font-size: 1.6em;
+  padding: 0 2em;
+  cursor: pointer;
+  transition: 800ms ease all;
+  outline: none;
+  min-width: 83vh;
+  margin-top: 2vh;
+  &:hover {
+    background: #fff;
+    color: #3066b1;
+  }
 
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 2px;
+    width: 0;
+    background: #3066b1;
+    transition: 400ms ease all;
+  }
+
+  &:after {
+    right: inherit;
+    top: inherit;
+    left: 0;
+    bottom: 0;
+  }
+
+  &:hover:before,
+  &:hover:after {
+    width: 100%;
+    transition: 800ms ease all;
+  }
+`;
 const App = () => {
   const [selectedfile, setSelectedFile] = useState([]);
   const [date, setDate] = useState({});
@@ -299,37 +343,41 @@ const App = () => {
       <div style={{ display: "flex", justifyContent: "center" }}>
         {!loadPreview && !loadForm && (
           <>
-            <Dropzone>
-              <FileInput
-                type="file"
-                multiple
-                onChange={InputChange}
-                accept=".pdf,image/*"
-              />
-              <img src="file.svg" height="40" width="40" />
-              <br />
-              <p>
-                <strong>Click to upload</strong> or drag and drop
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <Dropzone>
+                <FileInput
+                  type="file"
+                  multiple
+                  onChange={InputChange}
+                  accept=".pdf,image/*"
+                />
+                <img src="file.svg" height="40" width="40" />
                 <br />
-                upto 4 images/pdf, 3MB per file
-              </p>
-            </Dropzone>
-            <Button onClick={fileUploadSubmit}>Upload</Button>
-            {selectedfile.map((data) => {
-              const { id, filename, fileimage, filesize } = data;
-              return (
-                <FileContainer key={id} id={id}>
-                  <img src="cool_file.svg" height="40" />
-                  <div>
-                    {filename} <br />
-                    {filesize}
-                  </div>
-                  <Delete type="button" onClick={() => deleteSelectFile(id)}>
-                    ❌
-                  </Delete>
-                </FileContainer>
-              );
-            })}
+                <p>
+                  <strong>Click to upload</strong> or drag and drop
+                  <br />
+                  upto 4 images/pdf, 3MB per file
+                </p>
+              </Dropzone>
+              {/* <Button onClick={fileUploadSubmit}>Upload</Button> */}
+              <StyledButton onClick={fileUploadSubmit}>Upload</StyledButton>
+              {selectedfile.map((data) => {
+                const { id, filename, fileimage, filesize } = data;
+                return (
+                  <FileContainer key={id} id={id}>
+                    {/* <img src="cool_file.svg" height="40" /> */}
+                    <AttachFileOutlinedIcon />
+                    <div>
+                      {filename} <br />
+                      {filesize}
+                    </div>
+                    <Delete type="button" onClick={() => deleteSelectFile(id)}>
+                      ❌
+                    </Delete>
+                  </FileContainer>
+                );
+              })}
+            </div>
           </>
         )}
       </div>

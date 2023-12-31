@@ -1,10 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
 const StyledNavbar = styled.div`
-  background-color: #3498db;
-  width:100%;
-  height:7vh;
+  background-color: #2e4980;
+  width: 100%;
+  height: 13vh;
+  margin-top: 0vh;
+  margin-bottom: 0vh;
   justify-content: space-between;
   align-items: center;
 `;
@@ -12,8 +14,9 @@ const StyledNavbar = styled.div`
 const ContainerNav = styled.div`
   display: flex;
   align-items: center;
-  width:100%;
-  position:absolute
+  justify-content: space-evenly;
+  width: 100%;
+  position: absolute;
 `;
 
 const LogoContainer = styled.div`
@@ -22,8 +25,8 @@ const LogoContainer = styled.div`
 `;
 
 const Logo = styled.img`
-  width: 50px;
-  height: 50px;
+  width: 25vh;
+  height: 100px;
   margin-right: 10px;
 `;
 
@@ -34,16 +37,12 @@ const LogoHeading = styled.span`
 `;
 
 const NavigationLinks = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  width:100%;
-  align-items: center;
+  width: 100%;
 `;
 
 const StyledList = styled.a`
   text-decoration: none;
   color: #fff;
-  margin-right: 20px;
   font-size: 18px;
   font-weight: 500;
   cursor: pointer;
@@ -55,18 +54,18 @@ const StyledList = styled.a`
 `;
 
 const Button = styled.button`
-  background: -webkit-linear-gradient(left, #003366,#004080,#0059b3, #0073e6);
-  height:2.3em;
-  width:13em;
-  color:white;
-  font-weight:bold;
-  font-size:1em;
-  border-radius:1em;
-  cursor:pointer;
+  background: -webkit-linear-gradient(left, #003366, #004080, #0059b3, #0073e6);
+  height: 10vh;
+  width: 10vh;
+  color: white;
+  font-weight: bold;
+  font-size: 1em;
+  border-radius: 50%;
+  cursor: pointer;
   transition: opacity 0.3s ease-in-out;
-  &:hover{
-  transform: translateY(-5px);
-  color:white;
+  &:hover {
+    transform: translateY(-5px);
+    color: white;
   }
 `;
 
@@ -75,16 +74,17 @@ const Navbar = () => {
     <StyledNavbar>
       <ContainerNav>
         <LogoContainer>
-          <Logo src='upload.svg'></Logo>
-          <LogoHeading>ESS</LogoHeading>
+          <Logo src="https://firebasestorage.googleapis.com/v0/b/ess-authentication-fb04c.appspot.com/o/pngwing.com%20(3).png?alt=media&token=a2a8ea41-6a36-48db-a519-dc6a1cc0a3c2"></Logo>
+          {/* <LogoHeading>ESS</LogoHeading> */}
+          <Logo
+            style={{ cursor: "pointer" }}
+            src="https://firebasestorage.googleapis.com/v0/b/ess-authentication-fb04c.appspot.com/o/google-maps-svgrepo-com.svg?alt=media&token=70b1ba0f-e8a8-40d9-b47e-b9b52e5346f7"
+          ></Logo>
         </LogoContainer>
-        <NavigationLinks>
-          <StyledList href="/">
-            <Button>
-              Automate Invoice Upload 
-            </Button>
-            </StyledList>
-        </NavigationLinks>
+
+        <StyledList href="/">
+          <Button>Upload</Button>
+        </StyledList>
       </ContainerNav>
     </StyledNavbar>
   );
