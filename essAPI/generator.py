@@ -9,7 +9,9 @@ import json
 import re
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
-vocab=json.load(open('vocab.json','r'))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+location_path = os.path.join(script_dir, 'vocab.json')
+vocab=json.load(open(location_path,'r'))
 
 # detect type of candidate , if number then it could be amount / distance
 # For now amount is taken into consideration and value 1 is returned for it
