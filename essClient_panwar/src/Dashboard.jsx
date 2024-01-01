@@ -7,7 +7,7 @@ import { convertPdfToImages, readFileData } from "./pdf2img";
 import Preview from "./Preview";
 import { Form } from "./Form";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
-import Swal from "sweetalert2";
+
 import { DNA, Hourglass } from "react-loader-spinner";
 const Container = styled.div`
   align-items: center;
@@ -484,7 +484,7 @@ const App = (props) => {
       {!props.loading && (
         <div>
           {loadPreview ? (
-            <div style={{ marginLeft: "55vh" }}>
+            <div style={{ marginLeft: "67vh" }}>
               <Preview invoiceImages={invoiceImages} />
             </div>
           ) : loadForm ? (
