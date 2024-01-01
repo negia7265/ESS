@@ -7,6 +7,7 @@ import { convertPdfToImages, readFileData } from "./pdf2img";
 import Preview from "./Preview";
 import { Form } from "./Form";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
+import Swal from "sweetalert2";
 import { DNA, Hourglass } from "react-loader-spinner";
 const Container = styled.div`
   align-items: center;
@@ -320,8 +321,11 @@ const App = (props) => {
             props.setLoading(false);
             console.log(response);
             const valuesArray = Object.keys(response.data.address);
-            const sourceAddressCleaned = valuesArray[0].replace(/\n/g, "");
-            const destinationAddressCleaned = valuesArray[1].replace(/\n/g, "");
+            const sourceAddressCleaned = valuesArray[0]?.replace(/\n/g, "");
+            const destinationAddressCleaned = valuesArray[1]?.replace(
+              /\n/g,
+              ""
+            );
             // console.log(valuesArray[0]);
             setSourceAddress((prevState) => {
               setFormData((prevState) => {
@@ -347,7 +351,7 @@ const App = (props) => {
               setFormData((prevState) => {
                 return {
                   ...prevState,
-                  amount: max_amount_value.toString(),
+                  amount: max_amount_value?.toString(),
                 };
               });
               return { ...prevState, ...response.data.amount };
@@ -358,7 +362,7 @@ const App = (props) => {
               setFormData((prevState) => {
                 return {
                   ...prevState,
-                  distance: max_distance_value.toString(),
+                  distance: max_distance_value?.toString(),
                 };
               });
               return { ...prevState, ...response.data.distance };
@@ -368,7 +372,7 @@ const App = (props) => {
               setFormData((prevState) => {
                 return {
                   ...prevState,
-                  date: max_date_value.toString(),
+                  date: max_date_value?.toString(),
                 };
               });
               console.log({ ...prevState, ...response.data.date });
