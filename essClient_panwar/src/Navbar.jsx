@@ -1,22 +1,21 @@
 import React from "react";
 import styled from "styled-components";
+import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 
 const StyledNavbar = styled.div`
   background-color: #2e4980;
   width: 100%;
-  height: 13vh;
+  height: 18vh;
   margin-top: 0vh;
   margin-bottom: 0vh;
-  justify-content: space-between;
+  display: flex;
+
   align-items: center;
 `;
 
 const ContainerNav = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
   width: 100%;
-  position: absolute;
+  /* position: absolute; */
 `;
 
 const LogoContainer = styled.div`
@@ -73,18 +72,27 @@ const Navbar = () => {
   return (
     <StyledNavbar>
       <ContainerNav>
-        <LogoContainer>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <Logo src="https://firebasestorage.googleapis.com/v0/b/ess-authentication-fb04c.appspot.com/o/pngwing.com%20(3).png?alt=media&token=a2a8ea41-6a36-48db-a519-dc6a1cc0a3c2"></Logo>
-          {/* <LogoHeading>ESS</LogoHeading> */}
-          <Logo
-            style={{ cursor: "pointer" }}
-            src="https://firebasestorage.googleapis.com/v0/b/ess-authentication-fb04c.appspot.com/o/google-maps-svgrepo-com.svg?alt=media&token=70b1ba0f-e8a8-40d9-b47e-b9b52e5346f7"
-          ></Logo>
-        </LogoContainer>
-
-        <StyledList href="/">
-          <Button>Upload</Button>
-        </StyledList>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              marginRight: "10vh",
+            }}
+          >
+            <Logo
+              style={{ cursor: "pointer" }}
+              src="https://firebasestorage.googleapis.com/v0/b/ess-authentication-fb04c.appspot.com/o/google-maps-svgrepo-com.svg?alt=media&token=70b1ba0f-e8a8-40d9-b47e-b9b52e5346f7"
+            ></Logo>
+            <StyledList href="/">
+              <div>
+                <i style={{ fontSize: "8vh" }} class="fa-solid fa-upload"></i>
+                <h4>Upload</h4>
+              </div>
+            </StyledList>
+          </div>
+        </div>
       </ContainerNav>
     </StyledNavbar>
   );

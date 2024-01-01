@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Form.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import styled from "styled-components";
-export const Form = (props) => {
+export const Form = ({ formData }) => {
   const [date, setDate] = useState("");
   const [distance, setDistance] = useState("");
   const [amount, setAmount] = useState("");
@@ -41,10 +41,41 @@ export const Form = (props) => {
   const handleDestination = (e) => {
     setDestination(e.target.value);
   };
+  if (date?.length == 0) {
+    setDate(formData.date);
+  }
+  if (distance?.length == 0) {
+    setDistance(formData.distance);
+  }
+  if (amount?.length == 0) {
+    setAmount(formData.amount);
+  }
+  if (source?.length == 0) {
+    setSource(formData.sourceAddress);
+  }
+  if (destination?.length == 0) {
+    setDestination(formData.destinationAddress);
+  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const data = {
+      date,
+      distance,
+      amount,
+      sourceAddress: source,
+      destinationAddress: destination,
+      travelReason,
+    };
+    console.log(data);
+  };
+  const handleTravelReason = (e) => {
+    console.log(e.target.value);
+    settravelReason(e.target.value);
+  };
   return (
     <div className="formContainer" style={{ width: "100%", height: "auto" }}>
-      <div class="container" style={{ width: "100vh", height: "95vh" }}>
-        <form>
+      <div class="container" style={{ width: "100vh", height: "100vh" }}>
+        <form onSubmit={handleSubmit}>
           <div class="row">
             <h2>ESS FORM</h2>
             <div
@@ -71,7 +102,7 @@ export const Form = (props) => {
               class="input-group input-group-icon"
             >
               <input
-                type="email"
+                type="text"
                 style={{ fontSize: "2vh" }}
                 placeholder="Distance"
                 value={distance}
@@ -123,6 +154,9 @@ export const Form = (props) => {
                 ></i>
               </div>
             </div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <h3>TO</h3>
+            </div>
             <div
               style={{ marginTop: "35px", marginBottom: "35px" }}
               class="input-group input-group-icon"
@@ -150,7 +184,8 @@ export const Form = (props) => {
               type="radio"
               name="Travel Purpose"
               value="Home to Office"
-              checked="true"
+              checked={travelReason === "Home to Office"}
+              onChange={handleTravelReason}
             />
             <label for="card-1">
               <span style={{ cursor: "pointer" }}>Home to Office</span>
@@ -160,13 +195,15 @@ export const Form = (props) => {
               type="radio"
               name="Travel Purpose"
               value="Office to Home"
+              checked={travelReason === "Office to Home"}
+              onChange={handleTravelReason}
             />
             <label for="card-2">
               <span style={{ cursor: "pointer" }}>Office to Home</span>
             </label>
           </div>
           <div className="buttonContainer">
-            <Button>Submit</Button>
+            <Button type="submit">Submit</Button>
           </div>
         </form>
       </div>
