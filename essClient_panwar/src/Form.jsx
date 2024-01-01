@@ -9,6 +9,7 @@ export const Form = ({ formData }) => {
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
   const [travelReason, settravelReason] = useState("");
+
   const Button = styled.button`
     width: 100%;
     margin-top: 2vh;
@@ -69,7 +70,6 @@ export const Form = ({ formData }) => {
     console.log(data);
   };
   const handleTravelReason = (e) => {
-    console.log(e.target.value);
     settravelReason(e.target.value);
   };
   return (

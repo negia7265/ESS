@@ -7,6 +7,7 @@ import { convertPdfToImages, readFileData } from "./pdf2img";
 import Preview from "./Preview";
 import { Form } from "./Form";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
+import { DNA, Hourglass } from "react-loader-spinner";
 const Container = styled.div`
   align-items: center;
   justify-content: center;
@@ -209,7 +210,7 @@ export const StyledButton = styled.button`
     transition: 800ms ease all;
   }
 `;
-const App = () => {
+const App = (props) => {
   const [selectedfile, setSelectedFile] = useState([]);
   const [date, setDate] = useState({});
   const [distance, setDistance] = useState({});
@@ -295,6 +296,7 @@ const App = () => {
     setDistance({});
     setInvoiceImages([]);
     setPreview(true);
+    props.setLoading(true);
     if (selectedfile.length > 0) {
       const formData = new FormData();
       selectedfile.map((file) => {
@@ -315,6 +317,7 @@ const App = () => {
             },
           })
           .then((response) => {
+            props.setLoading(false);
             console.log(response);
             const valuesArray = Object.keys(response.data.address);
             const sourceAddressCleaned = valuesArray[0].replace(/\n/g, "");
@@ -372,7 +375,6 @@ const App = () => {
               return { ...prevState, ...response.data.date };
             });
           });
-        // setLoading(false);
       });
       setSelectedFile([]);
       e.target.value = null;
@@ -422,8 +424,17 @@ const App = () => {
                   upto 4 images/pdf, 3MB per file
                 </p>
               </Dropzone>
-              {/* <Button onClick={fileUploadSubmit}>Upload</Button> */}
               <StyledButton onClick={fileUploadSubmit}>Upload</StyledButton>
+
+              {/* <Hourglass
+                visible={true}
+                height="120"
+                width="120"
+                ariaLabel="hourglass-loading"
+                wrapperStyle={{}}
+                wrapperClass=""
+                colors={["#306cce", "#72a1ed"]}
+              /> */}
               {selectedfile.map((data) => {
                 const { id, filename, fileimage, filesize } = data;
                 return (
@@ -466,18 +477,19 @@ const App = () => {
           </Wrapper>
         </div>
       )}
-
-      <div>
-        {loadPreview ? (
-          <div style={{ marginLeft: "55vh" }}>
-            <Preview invoiceImages={invoiceImages} />
-          </div>
-        ) : loadForm ? (
-          <Form formData={formData} />
-        ) : (
-          <div></div>
-        )}
-      </div>
+      {!props.loading && (
+        <div>
+          {loadPreview ? (
+            <div style={{ marginLeft: "55vh" }}>
+              <Preview invoiceImages={invoiceImages} />
+            </div>
+          ) : loadForm ? (
+            <Form formData={formData} />
+          ) : (
+            <div></div>
+          )}
+        </div>
+      )}
 
       {/* <Preview invoiceImages={invoiceImages} />
       <Form /> */}
