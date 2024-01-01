@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Form.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import styled from "styled-components";
+import Swal from "sweetalert2";
 export const Form = ({ formData }) => {
   const [date, setDate] = useState("");
   const [distance, setDistance] = useState("");
@@ -9,7 +10,7 @@ export const Form = ({ formData }) => {
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
   const [travelReason, settravelReason] = useState("");
-
+  const [threshHold, setThreshHold] = useState(10);
   const Button = styled.button`
     width: 100%;
     margin-top: 2vh;
@@ -42,21 +43,18 @@ export const Form = ({ formData }) => {
   const handleDestination = (e) => {
     setDestination(e.target.value);
   };
-  if (date?.length == 0) {
+  useEffect(() => {
     setDate(formData.date);
-  }
-  if (distance?.length == 0) {
+
     setDistance(formData.distance);
-  }
-  if (amount?.length == 0) {
+
     setAmount(formData.amount);
-  }
-  if (source?.length == 0) {
+
     setSource(formData.sourceAddress);
-  }
-  if (destination?.length == 0) {
+
     setDestination(formData.destinationAddress);
-  }
+  }, [formData]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = {
@@ -67,6 +65,29 @@ export const Form = ({ formData }) => {
       destinationAddress: destination,
       travelReason,
     };
+    if (
+      data.length == 0 ||
+      distance.length == 0 ||
+      amount.length == 0 ||
+      source.length == 0 ||
+      destination.length == 0 ||
+      travelReason.length == 0
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Fields!!",
+      });
+    } else if (Number(distance) > threshHold) {
+      Swal.fire({
+        icon: "error",
+        title: "Sorry you are not eligible for ESS Service",
+      });
+    } else {
+      Swal.fire({
+        icon: "success",
+        title: "ESS Service Approved",
+      });
+    }
     console.log(data);
   };
   const handleTravelReason = (e) => {
@@ -89,6 +110,7 @@ export const Form = ({ formData }) => {
                 value={date}
                 onChange={handleDate}
               />
+
               <div class="input-icon">
                 <i
                   style={{ color: "#ffc632" }}
