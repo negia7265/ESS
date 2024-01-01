@@ -222,7 +222,13 @@ const App = () => {
   //For switching between the form and Preview
   const [loadPreview, setloadPreview] = useState(false);
   const [loadForm, setloadForm] = useState(false);
-
+  const [formData, setFormData] = useState({
+    sourceAddress: "",
+    destinationAddress: "",
+    amount: "",
+    date: "",
+    distance: "",
+  });
   const filesizes = (bytes, decimals = 2) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -261,6 +267,23 @@ const App = () => {
     }
   };
 
+  //A function to return the key with the highest value!! will be using this when creating form data from the API returned data.
+  function findMaxKey(obj) {
+    let maxKey = null;
+    let maxValue = Number.NEGATIVE_INFINITY;
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && typeof obj[key] === "number") {
+        if (obj[key] > maxValue) {
+          maxValue = obj[key];
+          maxKey = key;
+        }
+      }
+    }
+
+    return maxKey;
+  }
+
   const fileUploadSubmit = (e) => {
     e.preventDefault();
     setloadPreview(true);
@@ -292,19 +315,59 @@ const App = () => {
             },
           })
           .then((response) => {
+            console.log(response);
+            const valuesArray = Object.keys(response.data.address);
+            const sourceAddressCleaned = valuesArray[0].replace(/\n/g, "");
+            const destinationAddressCleaned = valuesArray[1].replace(/\n/g, "");
+            // console.log(valuesArray[0]);
             setSourceAddress((prevState) => {
+              setFormData((prevState) => {
+                return {
+                  ...prevState,
+                  sourceAddress: sourceAddressCleaned,
+                };
+              });
               return { ...prevState, ...response.data.address };
             });
             setDestinationAddress((prevState) => {
+              setFormData((prevState) => {
+                return {
+                  ...prevState,
+                  destinationAddress: destinationAddressCleaned,
+                };
+              });
               return { ...prevState, ...response.data.address };
             });
             setAmount((prevState) => {
+              const max_amount_value = findMaxKey(response.data.amount);
+              console.log(max_amount_value);
+              setFormData((prevState) => {
+                return {
+                  ...prevState,
+                  amount: max_amount_value.toString(),
+                };
+              });
               return { ...prevState, ...response.data.amount };
             });
             setDistance((prevState) => {
+              const max_distance_value = findMaxKey(response.data.distance);
+              console.log(max_distance_value);
+              setFormData((prevState) => {
+                return {
+                  ...prevState,
+                  distance: max_distance_value.toString(),
+                };
+              });
               return { ...prevState, ...response.data.distance };
             });
             setDate((prevState) => {
+              const max_date_value = findMaxKey(response.data.date);
+              setFormData((prevState) => {
+                return {
+                  ...prevState,
+                  date: max_date_value.toString(),
+                };
+              });
               console.log({ ...prevState, ...response.data.date });
               return { ...prevState, ...response.data.date };
             });
@@ -410,7 +473,7 @@ const App = () => {
             <Preview invoiceImages={invoiceImages} />
           </div>
         ) : loadForm ? (
-          <Form />
+          <Form formData={formData} />
         ) : (
           <div></div>
         )}
