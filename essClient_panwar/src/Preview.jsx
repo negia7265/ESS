@@ -16,7 +16,8 @@ import styled from "styled-components";
 // `;
 const Image = styled.img`
   width: 100%; /* Adjust the maximum width as needed */
-  max-width: 70vh;
+  max-width: 90vh;
+  max-height: 100vh;
   padding: 0;
   display: block; /* Ensure the image is treated as a block element */
 `;

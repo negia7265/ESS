@@ -1,5 +1,6 @@
 import React from "react";
 import "./Loader.css";
+import { Hourglass } from "react-loader-spinner";
 export const Loader = () => {
   return (
     <div
@@ -14,7 +15,7 @@ export const Loader = () => {
     >
       <h1 style={{ color: "black", fontSize: "10vh" }}>Loading...</h1>
       <div>
-        <svg
+        {/* <svg
           style={{ width: "70vh" }}
           className="bike"
           viewBox="0 0 48 30"
@@ -102,7 +103,16 @@ export const Loader = () => {
               stroke-dasharray="19 19"
             />
           </g>
-        </svg>
+        </svg> */}
+        <Hourglass
+          visible={true}
+          height="150"
+          width="150"
+          ariaLabel="hourglass-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          colors={["#306cce", "#72a1ed"]}
+        />
       </div>
     </div>
   );

@@ -484,7 +484,7 @@ const App = (props) => {
       {!props.loading && (
         <div>
           {loadPreview ? (
-            <div style={{ marginLeft: "67vh" }}>
+            <div style={{ marginLeft: "59vh" }}>
               <Preview invoiceImages={invoiceImages} />
             </div>
           ) : loadForm ? (
