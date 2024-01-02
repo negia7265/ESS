@@ -270,21 +270,21 @@ const App = (props) => {
   };
 
   //A function to return the key with the highest value!! will be using this when creating form data from the API returned data.
-  function findMaxKey(obj) {
-    let maxKey = null;
-    let maxValue = Number.NEGATIVE_INFINITY;
+  // function findMaxKey(obj) {
+  //   let maxKey = null;
+  //   let maxValue = Number.NEGATIVE_INFINITY;
 
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key) && typeof obj[key] === "number") {
-        if (obj[key] > maxValue) {
-          maxValue = obj[key];
-          maxKey = key;
-        }
-      }
-    }
+  //   for (const key in obj) {
+  //     if (obj.hasOwnProperty(key) && typeof obj[key] === "number") {
+  //       if (obj[key] > maxValue) {
+  //         maxValue = obj[key];
+  //         maxKey = key;
+  //       }
+  //     }
+  //   }
 
-    return maxKey;
-  }
+  //   return maxKey;
+  // }
 
   const fileUploadSubmit = (e) => {
     e.preventDefault();
@@ -320,12 +320,9 @@ const App = (props) => {
           .then((response) => {
             props.setLoading(false);
             console.log(response);
-            const valuesArray = Object.keys(response.data.address);
-            const sourceAddressCleaned = valuesArray[0]?.replace(/\n/g, "");
-            const destinationAddressCleaned = valuesArray[1]?.replace(
-              /\n/g,
-              ""
-            );
+            // const valuesArray = Object.keys(response.data.address);
+            const sourceAddressCleaned = response.data.src;
+            const destinationAddressCleaned = response.data.dest
             // console.log(valuesArray[0]);
             setSourceAddress((prevState) => {
               setFormData((prevState) => {
@@ -334,7 +331,6 @@ const App = (props) => {
                   sourceAddress: sourceAddressCleaned,
                 };
               });
-              return { ...prevState, ...response.data.address };
             });
             setDestinationAddress((prevState) => {
               setFormData((prevState) => {
@@ -343,40 +339,32 @@ const App = (props) => {
                   destinationAddress: destinationAddressCleaned,
                 };
               });
-              return { ...prevState, ...response.data.address };
             });
             setAmount((prevState) => {
-              const max_amount_value = findMaxKey(response.data.amount);
-              console.log(max_amount_value);
+              // const max_amount_value = findMaxKey(response.data.amount);
+              // console.log(max_amount_value);
               setFormData((prevState) => {
                 return {
                   ...prevState,
-                  amount: max_amount_value?.toString(),
+                  amount: response.data.amount,
                 };
               });
-              return { ...prevState, ...response.data.amount };
             });
             setDistance((prevState) => {
-              const max_distance_value = findMaxKey(response.data.distance);
-              console.log(max_distance_value);
               setFormData((prevState) => {
                 return {
                   ...prevState,
-                  distance: max_distance_value?.toString(),
+                  distance: response.data.dist,
                 };
               });
-              return { ...prevState, ...response.data.distance };
             });
             setDate((prevState) => {
-              const max_date_value = findMaxKey(response.data.date);
               setFormData((prevState) => {
                 return {
                   ...prevState,
-                  date: max_date_value?.toString(),
+                  date: response.data.date,
                 };
               });
-              console.log({ ...prevState, ...response.data.date });
-              return { ...prevState, ...response.data.date };
             });
           });
       });
@@ -402,13 +390,6 @@ const App = (props) => {
 
   return (
     <div>
-      {/* <LeftPane>
-        <Candidates candidateType={'Date'} predictions={Object.entries(date).sort((a,b)=>b[1]-a[1])}/>
-        <Candidates candidateType={'Distance'} predictions={Object.entries(distance).sort((a,b)=>b[1]-a[1])}/>
-        <Candidates candidateType={'Amount'} predictions={Object.entries(amount).sort((a,b)=>b[1]-a[1])}/>
-        <Candidates candidateType={'Source Address'} predictions={Object.entries(sourceAddress).sort((a,b)=>b[1]-a[1])}/>
-        <Candidates candidateType={'Destination Address'} predictions={Object.entries(destinationAddress).sort((a,b)=>b[1]-a[1])}/>
-      </LeftPane> */}
       <div style={{ display: "flex", justifyContent: "center" }}>
         {!loadPreview && !loadForm && (
           <>
