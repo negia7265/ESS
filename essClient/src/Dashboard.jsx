@@ -287,6 +287,23 @@ const App = (props) => {
 
   //   return maxKey;
   // }
+  const handleFormClick = (e) => {
+    // e.preventDefault();
+    // setloadForm(true);
+    // setloadPreview(false);
+    // setSourceAddress({});
+    // setDestinationAddress({});
+    // setAmount({});
+    // setDate({});
+    // setDistance({});
+    // setInvoiceImages([]);
+    // setPreview(true);
+    // props.setLoading(true);
+
+    setTimeout(() => {
+      console.log("Form submitted");
+    }, 2000);
+  };
   const handleEmailClick = async (e) => {
     e.preventDefault();
     setloadPreview(true);
@@ -464,7 +481,7 @@ const App = (props) => {
 
   //Dealing with Sliding tab
   const [authState, setAuthState] = useState("login");
-  const handleFormClick = () => {
+  const handleFormSelectClick = () => {
     setloadForm(true);
     setloadPreview(false);
     setAuthState("signup");
@@ -564,7 +581,7 @@ const App = (props) => {
             </TitleText>
             <SlideControls>
               <Slide onClick={handlePreviewClick}>Preview</Slide>
-              <Slide onClick={handleFormClick}>ESS Form</Slide>
+              <Slide onClick={handleFormSelectClick}>ESS Form</Slide>
               <SliderTab state={authState} />
             </SlideControls>
           </Wrapper>
@@ -577,7 +594,12 @@ const App = (props) => {
               <Preview invoiceImages={invoiceImages} />
             </div>
           ) : loadForm ? (
-            <Form formData={formData} />
+            <Form
+              setloadPreview={setloadPreview}
+              handleFormClick={handleFormClick}
+              setloadForm={setloadForm}
+              formData={formData}
+            />
           ) : (
             <div></div>
           )}
