@@ -7,11 +7,9 @@ import pytesseract
 import numpy as np
 import json
 import re
-script_dir = os.path.dirname(os.path.abspath(__file__))
-location_path = os.path.join(script_dir, 'location.json')
-
+import spacy
+nlp = spacy.load("en_core_web_md")
 parsers = [parser for parser in default_parsers if parser != 'relative-time']
-location = json.load(open(location_path))
 
 def extract_distance(text):
     text=text.translate(str.maketrans('','','''()'''))
@@ -51,26 +49,34 @@ def preprocess_img(img):
     kernel = np.ones((1, 1), np.uint8)
     return cv2.morphologyEx(img, cv2.MORPH_DILATE, kernel)
 
-# iterate each candidate and preprocess to remove words which are non relevant to address
-def contains_indian_city_or_country_name(text):
-    if ',' not in text:
-        return False 
-    text=text.translate(str.maketrans('','',''',!"#%&'()*+-/:;<=>?@[\]^_`{|}~$₹'''))
-    #remove new line character
-    text=text.replace('\n', ' ')
-    # lower case each letter of the word
-    text=text.lower()
-    # split the words into tokens
-    tokens=word_tokenize(text)
-    for word in tokens:
-       if word in location:
-          return True
+def check_address(text):
+    # Assumption: Address contains commas as seperator
+    if ',' not in text: # Check if text doesn't have comma delimeter.
+        return False
+    # Assumption: Address Doesn't contain emails and hence no @ symbol 
+    if '@' in text: # spacy considers text containing gmail address as location , so text containing gmail can never be address
+        return False
+    # this was an edge case found in invoices, through spacy NER , text containing thanks was also considered as location.
+    if 'thank' in text : 
+        return False
+    doc = nlp(text)
+    # Check if location is found in address 
+    for entity in doc.ents:
+        if entity.label_=='GPE' or entity.label_=='LOC':
+            return True
     return False
 
 relative_path = "essAPI"
 # Get the absolute path of the tessdata directory
 absolute_path = os.path.abspath(relative_path)
 
+def preprocess_address(text):
+   text=text.replace('\n',' ')
+   #remove time from text 
+   text= re.sub(r"\d{1,2}:\d{1,2}\s*(am|pm)?", '', text)
+   #remove unwanted characters from address
+   text= re.sub(r"[^a-zA-Z0-9,\s/-]", "", text)
+   return text
     
 def get_address(img):
     address=[]
@@ -81,9 +87,9 @@ def get_address(img):
     for cnt in contours[::-1]: 
         x, y, w, h = cv2.boundingRect(cnt)
         cropped = img[y:y + h, x:x + w]
-        text=pytesseract.image_to_string(cropped,lang='eng',config=f'--tessdata-dir "{absolute_path}"')
-        if contains_indian_city_or_country_name(text):
-            address.append(text)
+        text=pytesseract.image_to_string(cropped,lang='eng',config=f'--tessdata-dir "{absolute_path}"').lower()
+        if check_address(text):
+            address.append(preprocess_address(text))
         if len(address)==2:
             return address
     return address   
