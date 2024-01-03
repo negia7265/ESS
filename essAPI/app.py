@@ -8,12 +8,17 @@ import email
 from email.header import decode_header
 import os
 import io
+from geopy.geocoders import GoogleV3
+from geopy.distance import geodesic
 app = Flask(__name__, template_folder='template')
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 # configuring cors headers to content type
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Function to return the latest pdf attachment from the email inbox in bytes format
+
+api_key = 'AIzaSyALB6uQiBGnyZAJMiS1MAT8ViJmRQea8W0'
+geolocator = GoogleV3(api_key=api_key)
 
 
 def fetch_latest_pdf_attachment(email_user, email_pass):
@@ -101,6 +106,56 @@ def get_latest_pdf():
         )
     else:
         return "No PDF attachment found in the latest email."
+
+
+@app.route('/get_threshold_distances', methods=['POST'])
+def get_threshold_distances():
+    data = request.json
+    source_name = data.get('source_name', '')
+    destination_name = data.get('destination_name', '')
+    office_name = data.get('office_name', '')
+    threshold = data.get('threshold', '')
+    # source_name = "2722+5RC, Kasturba Nagar 3rd Cross St, Venkata Rathnam Nagar Extension,Venkata Rathinam Nagar, Adyar, Chennai"
+    # destination_name = "24, Gangadhar Chetty Rd, Rukmani Colony, Sivanchetti Gardens, Bengaluru, Karnataka 560042"
+    # office_name = "AMR Tech Park II, No. 23 & 24, Hongasandra, Hosur Main Road, Bengaluru, Karnataka 560068"
+
+    # Perform geocoding for both locations
+    location1 = geolocator.geocode(source_name)
+    location2 = geolocator.geocode(destination_name)
+    location3 = geolocator.geocode(office_name)
+    # will return these too
+    direction = ""
+    status = ""
+
+    if location1 and location2 and location3:
+        source_to_destination = geodesic(
+            (location1.latitude, location1.longitude), (location2.latitude, location2.longitude)).meters
+        source_to_office = geodesic((location1.latitude, location1.longitude),
+                                    (location3.latitude, location3.longitude)).meters
+        destination_to_office = geodesic(
+            (location2.latitude, location2.longitude), (location3.latitude, location3.longitude)).meters
+        if (destination_to_office <= source_to_office):
+            direction = "home_to_office"
+            if (destination_to_office <= threshold):
+                status = "ESS_Granted"
+            else:
+                status = "ESS_Denied"
+        elif (source_to_office < destination_to_office):
+            direction = "office_to_home"
+            if (source_to_office <= threshold):
+                status = "ESS_Granted"
+            else:
+                status = "ESS_Denied"
+
+        return jsonify({
+            "source_to_destination": source_to_destination,
+            "source_to_office": source_to_office,
+            "destination_to_office": destination_to_office,
+            "direction": direction,
+            "status": status
+        })
+    else:
+        return jsonify({"error": "Geocoding failed for one or both locations"}), 400
 
 
 if __name__ == '__main__':
