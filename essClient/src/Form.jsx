@@ -77,11 +77,6 @@ export const Form = ({ formData }) => {
         icon: "error",
         title: "Missing Fields!!",
       });
-    } else if (Number(distance) > threshHold) {
-      Swal.fire({
-        icon: "error",
-        title: "Sorry you are not eligible for ESS Service",
-      });
     } else {
       Swal.fire({
         icon: "success",
