@@ -81,10 +81,10 @@ const Navbar = () => {
               marginRight: "10vh",
             }}
           >
-            <Logo
+            {/* <Logo
               style={{ cursor: "pointer" }}
               src="https://firebasestorage.googleapis.com/v0/b/ess-authentication-fb04c.appspot.com/o/google-maps-svgrepo-com.svg?alt=media&token=70b1ba0f-e8a8-40d9-b47e-b9b52e5346f7"
-            ></Logo>
+            ></Logo> */}
             <StyledList href="/">
               <div>
                 <i style={{ fontSize: "8vh" }} class="fa-solid fa-upload"></i>

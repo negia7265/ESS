@@ -3,7 +3,7 @@ import "./Form.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import styled from "styled-components";
 import Swal from "sweetalert2";
-export const Form = ({ formData }) => {
+export const Form = ({ formData, setloadPreview, setloadForm }) => {
   const [date, setDate] = useState("");
   const [distance, setDistance] = useState("");
   const [amount, setAmount] = useState("");
@@ -82,11 +82,18 @@ export const Form = ({ formData }) => {
         icon: "success",
         title: "ESS Service Approved",
       });
+      setTimeout(() => {
+        setloadForm(false);
+        setloadPreview(false);
+        Swal.close();
+      }, 3000);
     }
-    console.log(data);
   };
   const handleTravelReason = (e) => {
     settravelReason(e.target.value);
+  };
+  const handleFormClick = () => {
+    console.log("Form clicked");
   };
   return (
     <div className="formContainer" style={{ width: "100%", height: "auto" }}>
@@ -220,7 +227,9 @@ export const Form = ({ formData }) => {
             </label>
           </div>
           <div className="buttonContainer">
-            <Button type="submit">Submit</Button>
+            <Button onClick={handleFormClick} type="submit">
+              Submit
+            </Button>
           </div>
         </form>
       </div>
