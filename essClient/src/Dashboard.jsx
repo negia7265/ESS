@@ -168,8 +168,10 @@ const SliderTab = styled.div`
   ${(props) => props.state != "login" && "left: 50%"};
 `;
 //Styled components for the File Upload Button
+
 export const StyledButton = styled.button`
-  background: #3066b1;
+  background: ${(props) => props.Color};
+
   color: #fff;
   border: none;
   position: relative;
@@ -183,7 +185,7 @@ export const StyledButton = styled.button`
   margin-top: 2vh;
   &:hover {
     background: #fff;
-    color: #3066b1;
+    color: ${(props) => props.Color};
   }
 
   &:before,
@@ -194,7 +196,7 @@ export const StyledButton = styled.button`
     right: 0;
     height: 2px;
     width: 0;
-    background: #3066b1;
+    background: ${(props) => props.Color};
     transition: 400ms ease all;
   }
 
@@ -285,6 +287,90 @@ const App = (props) => {
 
   //   return maxKey;
   // }
+  const handleEmailClick = async (e) => {
+    e.preventDefault();
+    setloadPreview(true);
+    setloadForm(false);
+    setSourceAddress({});
+    setDestinationAddress({});
+    setAmount({});
+    setDate({});
+    setDistance({});
+    setInvoiceImages([]);
+    setPreview(true);
+    props.setLoading(true);
+    const form_data = await axios.get("http://127.0.0.1:5000/get_latest_pdf", {
+      responseType: "arraybuffer",
+    });
+    const pdfBlob = new Blob([form_data.data], { type: "application/pdf" });
+
+    // Create a FormData object
+    const formData = new FormData();
+
+    // Append the Blob as a file with the key 'file'
+    formData.append("file", pdfBlob, "latest_attachment.pdf");
+    convertPdfToImages(pdfBlob).then((data) => {
+      setInvoiceImages((prevImages) => [...prevImages, ...data]);
+    });
+    axios
+      .post("http://127.0.0.1:5000/parse_invoice/api", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        props.setLoading(false);
+        console.log(response);
+        // const valuesArray = Object.keys(response.data.address);
+        const sourceAddressCleaned = response.data.src;
+        const destinationAddressCleaned = response.data.dest;
+        // console.log(valuesArray[0]);
+        setSourceAddress((prevState) => {
+          setFormData((prevState) => {
+            return {
+              ...prevState,
+              sourceAddress: sourceAddressCleaned,
+            };
+          });
+        });
+        setDestinationAddress((prevState) => {
+          setFormData((prevState) => {
+            return {
+              ...prevState,
+              destinationAddress: destinationAddressCleaned,
+            };
+          });
+        });
+        setAmount((prevState) => {
+          // const max_amount_value = findMaxKey(response.data.amount);
+          // console.log(max_amount_value);
+          setFormData((prevState) => {
+            return {
+              ...prevState,
+              amount: response.data.amount,
+            };
+          });
+        });
+        setDistance((prevState) => {
+          setFormData((prevState) => {
+            return {
+              ...prevState,
+              distance: response.data.dist,
+            };
+          });
+        });
+        setDate((prevState) => {
+          setFormData((prevState) => {
+            return {
+              ...prevState,
+              date: response.data.date,
+            };
+          });
+        });
+      });
+    setSelectedFile([]);
+    e.target.value = null;
+  };
 
   const fileUploadSubmit = (e) => {
     e.preventDefault();
@@ -301,6 +387,7 @@ const App = (props) => {
     if (selectedfile.length > 0) {
       const formData = new FormData();
       selectedfile.map((file) => {
+        console.log(file.file_content);
         if (file.filetype == "application/pdf") {
           convertPdfToImages(file.file_content).then((data) => {
             setInvoiceImages((prevImages) => [...prevImages, ...data]);
@@ -322,7 +409,7 @@ const App = (props) => {
             console.log(response);
             // const valuesArray = Object.keys(response.data.address);
             const sourceAddressCleaned = response.data.src;
-            const destinationAddressCleaned = response.data.dest
+            const destinationAddressCleaned = response.data.dest;
             // console.log(valuesArray[0]);
             setSourceAddress((prevState) => {
               setFormData((prevState) => {
@@ -393,25 +480,42 @@ const App = (props) => {
       <div style={{ display: "flex", justifyContent: "center" }}>
         {!loadPreview && !loadForm && (
           <>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <Dropzone>
-                <FileInput
-                  type="file"
-                  multiple
-                  onChange={InputChange}
-                  accept=".pdf,image/*"
-                />
-                <img src="file.svg" height="40" width="40" />
-                <br />
-                <p>
-                  <strong>Click to upload</strong> or drag and drop
+            <div>
+              <div style={{ margin: "5px" }}>
+                <StyledButton onClick={handleEmailClick} Color="#ffc632">
+                  Use Email
+                </StyledButton>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  margin: "9px",
+                }}
+              >
+                <h2>OR</h2>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <Dropzone>
+                  <FileInput
+                    type="file"
+                    multiple
+                    onChange={InputChange}
+                    accept=".pdf,image/*"
+                  />
+                  <img src="file.svg" height="40" width="40" />
                   <br />
-                  upto 4 images/pdf, 3MB per file
-                </p>
-              </Dropzone>
-              <StyledButton onClick={fileUploadSubmit}>Upload</StyledButton>
+                  <p>
+                    <strong>Click to upload</strong> or drag and drop
+                    <br />
+                    upto 4 images/pdf, 3MB per file
+                  </p>
+                </Dropzone>
+                <StyledButton Color="#3066b1" onClick={fileUploadSubmit}>
+                  Upload
+                </StyledButton>
 
-              {/* <Hourglass
+                {/* <Hourglass
                 visible={true}
                 height="120"
                 width="120"
@@ -420,22 +524,26 @@ const App = (props) => {
                 wrapperClass=""
                 colors={["#306cce", "#72a1ed"]}
               /> */}
-              {selectedfile.map((data) => {
-                const { id, filename, fileimage, filesize } = data;
-                return (
-                  <FileContainer key={id} id={id}>
-                    {/* <img src="cool_file.svg" height="40" /> */}
-                    <AttachFileOutlinedIcon />
-                    <div>
-                      {filename} <br />
-                      {filesize}
-                    </div>
-                    <Delete type="button" onClick={() => deleteSelectFile(id)}>
-                      ❌
-                    </Delete>
-                  </FileContainer>
-                );
-              })}
+                {selectedfile.map((data) => {
+                  const { id, filename, fileimage, filesize } = data;
+                  return (
+                    <FileContainer key={id} id={id}>
+                      {/* <img src="cool_file.svg" height="40" /> */}
+                      <AttachFileOutlinedIcon />
+                      <div>
+                        {filename} <br />
+                        {filesize}
+                      </div>
+                      <Delete
+                        type="button"
+                        onClick={() => deleteSelectFile(id)}
+                      >
+                        ❌
+                      </Delete>
+                    </FileContainer>
+                  );
+                })}
+              </div>
             </div>
           </>
         )}
