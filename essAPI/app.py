@@ -68,8 +68,6 @@ def extract_invoice_pdf():
     if len(request.files) != 1:
         response = jsonify(
             {'error': 'Invalid number of invoice ! please upload 1 invoice image/pdf to process.'})
-        # TODO check
-        response.status_code = 404
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
     FILE = request.files['file']
@@ -80,9 +78,7 @@ def extract_invoice_pdf():
         parser = InvoiceParser(FILE.read(), 'image')
         response = jsonify(parser.getData())
     else:
-        # TODO check
         response = jsonify({'error': 'Invalid file type.'})
-        response.status_code = 404
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response  # return json data to client side
 
