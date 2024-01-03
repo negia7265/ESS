@@ -111,4 +111,3 @@ class InvoiceParser:
         if len(self.address)>1:
           self.dest=self.address[1]
         return {'date': self.date, 'dist': self.distance,'src':self.src,'dest':self.dest, 'amount':self.total_amount}
-
