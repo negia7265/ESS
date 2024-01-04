@@ -35,6 +35,8 @@ def extract_date(text):
     if dates==None:
         return date
     for d in dates:  #d[0] is the actual string format
+        if d[1].year<2000: # by default if year is less than 2000 then continue with other dates.
+            continue 
         date.add(d[1].strftime("%d-%m-%Y"))
     return date
 
