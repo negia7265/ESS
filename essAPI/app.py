@@ -111,18 +111,22 @@ def get_threshold_distances():
     destination_name = data.get('destination_name', '')
     office_name = data.get('office_name', '')
     threshold = data.get('threshold', '')
+    homethreshold = data.get('homethreshold', '')
+    homeAddress = data.get('homeAddress', '')
     # source_name = "2722+5RC, Kasturba Nagar 3rd Cross St, Venkata Rathnam Nagar Extension,Venkata Rathinam Nagar, Adyar, Chennai"
     # destination_name = "24, Gangadhar Chetty Rd, Rukmani Colony, Sivanchetti Gardens, Bengaluru, Karnataka 560042"
     # office_name = "AMR Tech Park II, No. 23 & 24, Hongasandra, Hosur Main Road, Bengaluru, Karnataka 560068"
 
     # Perform geocoding for both locations
+
     location1 = geolocator.geocode(source_name)
     location2 = geolocator.geocode(destination_name)
     location3 = geolocator.geocode(office_name)
+    location4 = geolocator.geocode(homeAddress)
     # will return these too
     direction = ""
     status = ""
-
+    print(homeAddress)
     if location1 and location2 and location3:
         source_to_destination = geodesic(
             (location1.latitude, location1.longitude), (location2.latitude, location2.longitude)).meters
@@ -130,16 +134,21 @@ def get_threshold_distances():
                                     (location3.latitude, location3.longitude)).meters
         destination_to_office = geodesic(
             (location2.latitude, location2.longitude), (location3.latitude, location3.longitude)).meters
+        home_to_source = geodesic((location4.latitude, location4.longitude),
+                                  (location1.latitude, location1.longitude)).meters
+        home_to_destination = geodesic(
+            (location4.latitude, location4.longitude), (location2.latitude, location2.longitude)).meters
+        print(source_to_destination)
 
         if (int(destination_to_office) <= int(source_to_office)):
             direction = "home_to_office"
-            if (int(destination_to_office) <= threshold):
+            if (int(destination_to_office) <= threshold and int(home_to_source) <= homethreshold):
                 status = "ESS_Granted"
             else:
                 status = "ESS_Denied"
         elif (int(source_to_office) < int(destination_to_office)):
             direction = "office_to_home"
-            if (int(source_to_office) <= threshold):
+            if (int(source_to_office) <= threshold and int(home_to_destination) <= homethreshold):
                 status = "ESS_Granted"
             else:
                 status = "ESS_Denied"
