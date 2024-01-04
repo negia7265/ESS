@@ -225,8 +225,12 @@ const App = (props) => {
   //For ESS status and threshold
   const [essStatus, setessStatus] = useState({});
   const [threshold, setThreshold] = useState(274000);
+  const [homethreshold, sethomeThreshold] = useState(700);
   const [officeName, setofficeName] = useState(
     "AMR Tech Park II, No. 23 & 24, Hongasandra, Hosur Main Road, Bengaluru, Karnataka 560068"
+  );
+  const [homeAddress, sethomeAddress] = useState(
+    "249, 14th Main Rd, Sector 7, HSR Layout, Bengaluru, Karnataka 560102"
   );
   //For switching between the form and Preview
   const [loadPreview, setloadPreview] = useState(false);
@@ -238,6 +242,9 @@ const App = (props) => {
     date: "",
     distance: "",
   });
+  // Slide For Email
+  const [daysAgo, setdaysAgo] = useState(0);
+
   const filesizes = (bytes, decimals = 2) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -395,6 +402,8 @@ const App = (props) => {
           destination_name: response.data.dest,
           office_name: officeName,
           threshold: threshold,
+          homethreshold: homethreshold,
+          homeAddress: homeAddress,
         };
         axios
           .post("http://127.0.0.1:5000/get_threshold_distances", threshData)
@@ -494,6 +503,8 @@ const App = (props) => {
               destination_name: response.data.dest,
               office_name: officeName,
               threshold: threshold,
+              homethreshold: homethreshold,
+              homeAddress: homeAddress,
             };
             axios
               .post("http://127.0.0.1:5000/get_threshold_distances", threshData)
@@ -522,14 +533,34 @@ const App = (props) => {
     setloadPreview(true);
     setAuthState("login");
   };
-
+  const handleSliderChange = (e) => {
+    console.log(e.target.value);
+    setdaysAgo(e.target.value);
+  };
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center" }}>
         {!loadPreview && !loadForm && (
           <>
             <div>
-              <div style={{ margin: "5px" }}>
+              <div
+                style={{
+                  margin: "5px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <h3>{`Fetch invoices from ${daysAgo} days ago`}</h3>
+                <input
+                  id="changeSize"
+                  type="range"
+                  min="0"
+                  max="30"
+                  style={{ background: "grey" }}
+                  defaultValue={0}
+                  //disabled={isRunning ? "disabled" : null}
+                  onChange={handleSliderChange}
+                />
                 <StyledButton onClick={handleEmailClick} Color="#ffc632">
                   Use Email
                 </StyledButton>
