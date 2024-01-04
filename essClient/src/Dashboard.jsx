@@ -222,7 +222,12 @@ const App = (props) => {
   const [destinationAddress, setDestinationAddress] = useState({});
   const [invoiceImages, setInvoiceImages] = useState([]);
   const [preview, setPreview] = useState(false);
-
+  //For ESS status and threshold
+  const [essStatus, setessStatus] = useState({});
+  const [threshold, setThreshold] = useState(274000);
+  const [officeName, setofficeName] = useState(
+    "AMR Tech Park II, No. 23 & 24, Hongasandra, Hosur Main Road, Bengaluru, Karnataka 560068"
+  );
   //For switching between the form and Preview
   const [loadPreview, setloadPreview] = useState(false);
   const [loadForm, setloadForm] = useState(false);
@@ -341,6 +346,7 @@ const App = (props) => {
         // const valuesArray = Object.keys(response.data.address);
         const sourceAddressCleaned = response.data.src;
         const destinationAddressCleaned = response.data.dest;
+
         // console.log(valuesArray[0]);
         setSourceAddress((prevState) => {
           setFormData((prevState) => {
@@ -384,7 +390,20 @@ const App = (props) => {
             };
           });
         });
+        const threshData = {
+          source_name: response.data.src,
+          destination_name: response.data.dest,
+          office_name: officeName,
+          threshold: threshold,
+        };
+        axios
+          .post("http://127.0.0.1:5000/get_threshold_distances", threshData)
+          .then((response) => {
+            console.log(response.data);
+            setessStatus(response.data);
+          });
       });
+
     setSelectedFile([]);
     e.target.value = null;
   };
@@ -470,6 +489,18 @@ const App = (props) => {
                 };
               });
             });
+            const threshData = {
+              source_name: response.data.src,
+              destination_name: response.data.dest,
+              office_name: officeName,
+              threshold: threshold,
+            };
+            axios
+              .post("http://127.0.0.1:5000/get_threshold_distances", threshData)
+              .then((response) => {
+                console.log(response.data);
+                setessStatus(response.data);
+              });
           });
       });
       setSelectedFile([]);
@@ -599,6 +630,7 @@ const App = (props) => {
               handleFormClick={handleFormClick}
               setloadForm={setloadForm}
               formData={formData}
+              essStatus={essStatus}
             />
           ) : (
             <div></div>

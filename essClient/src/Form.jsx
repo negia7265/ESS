@@ -3,7 +3,8 @@ import "./Form.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import styled from "styled-components";
 import Swal from "sweetalert2";
-export const Form = ({ formData, setloadPreview, setloadForm }) => {
+import Alert from "@mui/material/Alert";
+export const Form = ({ formData, setloadPreview, setloadForm, essStatus }) => {
   const [date, setDate] = useState("");
   const [distance, setDistance] = useState("");
   const [amount, setAmount] = useState("");
@@ -11,6 +12,7 @@ export const Form = ({ formData, setloadPreview, setloadForm }) => {
   const [destination, setDestination] = useState("");
   const [travelReason, settravelReason] = useState("");
   const [threshHold, setThreshHold] = useState(10);
+  const [serviceStatus, setServiceStatus] = useState(false);
   const Button = styled.button`
     width: 100%;
     margin-top: 2vh;
@@ -64,6 +66,7 @@ export const Form = ({ formData, setloadPreview, setloadForm }) => {
       sourceAddress: source,
       destinationAddress: destination,
       travelReason,
+      status: essStatus.status,
     };
     if (
       data.length == 0 ||
@@ -95,12 +98,32 @@ export const Form = ({ formData, setloadPreview, setloadForm }) => {
   const handleFormClick = () => {
     console.log("Form clicked");
   };
+  console.log(essStatus);
+  useEffect(() => {
+    console.log(essStatus);
+    if (essStatus.status === "ESS_Denied") setServiceStatus(false);
+    else setServiceStatus(true);
+  }, [formData]);
+  useEffect(() => {
+    // Set the initial travel reason based on essStatus when component mounts
+    settravelReason(essStatus.direction);
+  }, [essStatus]);
+
   return (
     <div className="formContainer" style={{ width: "100%", height: "auto" }}>
       <div class="container" style={{ width: "100vh", height: "100vh" }}>
+        {serviceStatus ? (
+          <Alert variant="filled" severity="success">
+            Eligible for ESS Service
+          </Alert>
+        ) : (
+          <Alert variant="filled" severity="error">
+            Not Eligible for ESS Service
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div class="row">
-            <h2>ESS FORM</h2>
             <div
               style={{ marginTop: "35px", marginBottom: "35px" }}
               class="input-group input-group-icon"
@@ -207,8 +230,8 @@ export const Form = ({ formData, setloadPreview, setloadForm }) => {
               id="card-1"
               type="radio"
               name="Travel Purpose"
-              value="Home to Office"
-              checked={travelReason === "Home to Office"}
+              value="home_to_office"
+              checked={travelReason === "home_to_office"}
               onChange={handleTravelReason}
             />
             <label for="card-1">
@@ -218,8 +241,8 @@ export const Form = ({ formData, setloadPreview, setloadForm }) => {
               id="card-2"
               type="radio"
               name="Travel Purpose"
-              value="Office to Home"
-              checked={travelReason === "Office to Home"}
+              value="office_to_home"
+              checked={travelReason === "office_to_home"}
               onChange={handleTravelReason}
             />
             <label for="card-2">

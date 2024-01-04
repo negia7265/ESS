@@ -130,23 +130,24 @@ def get_threshold_distances():
                                     (location3.latitude, location3.longitude)).meters
         destination_to_office = geodesic(
             (location2.latitude, location2.longitude), (location3.latitude, location3.longitude)).meters
-        if (destination_to_office <= source_to_office):
+
+        if (int(destination_to_office) <= int(source_to_office)):
             direction = "home_to_office"
-            if (destination_to_office <= threshold):
+            if (int(destination_to_office) <= threshold):
                 status = "ESS_Granted"
             else:
                 status = "ESS_Denied"
-        elif (source_to_office < destination_to_office):
+        elif (int(source_to_office) < int(destination_to_office)):
             direction = "office_to_home"
-            if (source_to_office <= threshold):
+            if (int(source_to_office) <= threshold):
                 status = "ESS_Granted"
             else:
                 status = "ESS_Denied"
 
         return jsonify({
-            "source_to_destination": source_to_destination,
-            "source_to_office": source_to_office,
-            "destination_to_office": destination_to_office,
+            "source_to_destination": int(source_to_destination),
+            "source_to_office": int(source_to_office),
+            "destination_to_office": int(destination_to_office),
             "direction": direction,
             "status": status
         })
