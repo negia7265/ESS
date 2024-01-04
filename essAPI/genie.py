@@ -72,7 +72,7 @@ relative_path = "essAPI"
 # Get the absolute path of the tessdata directory
 absolute_path = os.path.abspath(relative_path)
 
-def preprocess_address_text(text):
+def preprocess_address(text):
    #remove time from text
    position = re.search(r'\d{1,2}:\d{1,2}\s*(am|pm)?', text)
    if position is not None:
