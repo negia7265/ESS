@@ -111,7 +111,7 @@ export const Form = ({ formData, setloadPreview, setloadForm, essStatus }) => {
 
   return (
     <div className="formContainer" style={{ width: "100%", height: "auto" }}>
-      <div class="container" style={{ width: "100vh", height: "100vh" }}>
+      <div class="container" style={{ width: "100vh", height: "115vh" }}>
         {serviceStatus ? (
           <Alert variant="filled" severity="success">
             Eligible for ESS Service
