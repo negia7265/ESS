@@ -9,6 +9,7 @@ import { DNA, Hourglass } from "react-loader-spinner";
 import { Loader } from "./Loader";
 export const MainApp = () => {
   const [loading, setLoading] = useState(false);
+  const [loademailSelect, setloademailSelect] = useState(false);
   return (
     <BrowserRouter>
       <div style={{ display: "flex", justifyContent: "center" }}>

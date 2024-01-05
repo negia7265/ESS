@@ -302,8 +302,8 @@ const App = (props) => {
           return pdfBlob;
         })
       );
-
-      return extractedData;
+      const reversedData = extractedData.reverse();
+      return reversedData;
     } catch (error) {
       console.error("Error extracting zip data:", error);
       throw error;
@@ -368,15 +368,12 @@ const App = (props) => {
         responseType: "arraybuffer",
       }
     );
-    console.log(form_num_days_data.headers["content-type"]);
     const zipBlob = new Blob([form_num_days_data.data], {
       type: "application/zip",
     });
     const pdfBlob = new Blob([form_data.data], { type: "application/pdf" });
-    const pdfBlobsArray = extractZipData(zipBlob);
-    console.log(zipBlob);
-    console.log(pdfBlob);
-    console.log(pdfBlobsArray);
+
+    const temporary = await extractZipData(zipBlob);
     // Create a FormData object
     const formData = new FormData();
 
@@ -577,7 +574,6 @@ const App = (props) => {
     setAuthState("login");
   };
   const handleSliderChange = (e) => {
-    console.log(e.target.value);
     setdaysAgo(e.target.value);
   };
   return (
