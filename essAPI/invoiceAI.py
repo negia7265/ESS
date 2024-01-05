@@ -2,26 +2,26 @@ import genie # a custom set of functions made to extract date,distance & address
 import tensorflow as tf # used for deep learning 
 import pandas as pd # Most important to build dataframes used as dataset or input to ml model
 import pdfplumber # best reliable open source project to parse pdf 
-from generator import Generate_Extraction_Candidates
+from generator import generate_amount_candidates
 import os
 import re
 import pytesseract
 import numpy as np
-gen=Generate_Extraction_Candidates()   
 current_directory = os.getcwd()
 
 # Relative path to the model file
-relative_path = 'essAPI/amount_best_model_87.h5'
+relative_path = 'essAPI/amount_model_tf.h5'
 
 # Combine the current directory and the relative path
 model_path = os.path.join(current_directory, relative_path)
+# model_path='./amount_model_tf.h5' #linux path
 model=tf.keras.models.load_model(model_path)
 # This class receives either an invoice pdf or image ,
 # information extraction from unstructured invoice is done to extract date,
 # distance, amount and address.
 relative_path_eng = "essAPI"
 absolute_path = os.path.abspath(relative_path_eng)
-
+# absolute_path=os.getcwd()  
 class InvoiceParser:
     def __init__(self,invoice_data,invoice_data_type):
         self.date=''
@@ -38,18 +38,16 @@ class InvoiceParser:
                 # dedupe chars is a method which removes overlapped lines in a page
                 # bold fonts can be considered double /overlapped lines so it is used here.  
                 page=page.dedupe_chars(tolerance=1)
-                # The text positional features along with text itself is extracted from 
-                # pdf to feed as input to ml model.
-                df=pd.DataFrame(page.extract_words())
-                if df.empty: # discard empty invoice page and continue with other pages
-                    continue
-                df['bottom']=df['bottom']-df['top']
-                df['x1']=df['x1']-df['x0']
                 self.extract(page.extract_text())
-                df.rename(columns = {'bottom':'height','x1':'width','x0':'left'}, inplace = True)
-                self.extract_amount(df,page.height,page.width)
                 # convert invoice page to image with 300 DPI image quality , black and white color.
                 img=np.array(page.to_image(resolution=300).original.convert('L'))
+                img=genie.preprocess_img(img,img_decode=False)
+                # The text positional features along with text itself is extracted from 
+                # pdf to feed as input to ml model.
+                df=pytesseract.image_to_data(img,lang='eng',config=f'--tessdata-dir "{absolute_path}"', output_type='data.frame')
+                height=max(df['top'].max(),df['height'].max())
+                width=max(df['left'].max(),df['width'].max())
+                self.extract_amount(df,height,width)
                 if len(self.address)<2:
                     for addr in genie.get_address(img):
                         self.address.append(addr)
@@ -57,7 +55,7 @@ class InvoiceParser:
                             break
             invoice.close()
         else:  
-            img=genie.preprocess_img(invoice_data)  
+            img=genie.preprocess_img(invoice_data,img_decode=True)  
             for addr in genie.get_address(img):
                self.address.append(addr)
                if len(self.address)==2:
@@ -66,9 +64,11 @@ class InvoiceParser:
             self.extract(text)
             # dataframe contains positional features of each word present in invoice.
             df=pytesseract.image_to_data(img,lang='eng',config=f'--tessdata-dir "{absolute_path}"', output_type='data.frame')
+            height=max(df['top'].max(),df['height'].max())
+            width=max(df['left'].max(),df['width'].max())
             if not df.empty:
             # Tesseract ocr provides image dimensions in it's dataframe 
-               self.extract_amount(df,df['height'].max(),df['width'].max())
+               self.extract_amount(df,height,width)
                            
     def extract(self,text):
         dist=genie.extract_distance(text)
@@ -84,9 +84,8 @@ class InvoiceParser:
                                 
     def extract_amount(self,data,height,width):
         #Height and width are dimensions of invoice
-        data.dropna(inplace=True)
         # amounts are extracted such as tax, subtotal, due, total amount these are known candidates
-        df=gen.get_extraction_candidates(data,10,None,height,width)
+        df=generate_amount_candidates(data,10,'-1',height,width)    #model is trained with 10 number of neighbours    
         df.reset_index(inplace=True)
         cand_pos=tf.constant(list(df['candidate_position']))
         neighbours=tf.constant(list(df['neighbour_id']))
