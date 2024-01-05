@@ -60,6 +60,50 @@ def fetch_latest_pdf_attachment(email_user, email_pass):
     return pdf_attachment
 
 
+def fetch_invoice_data_last_num_days(email_user, email_pass, day):
+    mail = imaplib.IMAP4_SSL("imap.gmail.com")
+    mail.login(email_user, email_pass)
+
+    # Select the mailbox (inbox in this case)
+    mail.select("inbox")
+
+    # Calculate the date 'day' days ago
+    days_ago = (datetime.now() - timedelta(days=day)).strftime("%d-%b-%Y")
+
+    # Search for emails with specific subjects received in the last 'day' days
+    status, messages = mail.search(
+        None, f'(OR SUBJECT "Rapido Invoice" SUBJECT "Invoice for your Ride") SINCE {days_ago}'
+    )
+
+    invoice_data = []
+
+    for msg_id in messages[0].split():
+        _, msg_data = mail.fetch(msg_id, "(RFC822)")
+        raw_email = msg_data[0][1]
+        msg = email.message_from_bytes(raw_email)
+
+        # Extract subject, date, and time information
+        subject = msg["Subject"]
+        date_received = datetime.strptime(
+            msg["Date"], "%a, %d %b %Y %H:%M:%S %z")
+
+        # Store date and time as separate strings
+        formatted_date = date_received.strftime("%d-%b-%Y")
+        formatted_time = date_received.strftime("%I:%M %p %Z")
+
+        # Append data to the invoice_data array
+        invoice_data.append({
+            "subject": subject,
+            "date_received": formatted_date,
+            "time_received": formatted_time
+        })
+
+    mail.close()
+    mail.logout()
+
+    return invoice_data
+
+
 def fetch_pdfs_last_num_days(email_user, email_pass, day):
     mail = imaplib.IMAP4_SSL("imap.gmail.com")
     mail.login(email_user, email_pass)
@@ -167,6 +211,25 @@ def get_pdf_last_num_days():
         )
     else:
         return "No PDF attachments found in the last 10 days."
+
+
+@app.route('/fetch_invoice_data_last_num_days', methods=['POST'])
+def get_invoice_data_last_num_days():
+    email_user = 'blackpearl7579@gmail.com'
+    email_pass = 'ddvh wnep mxmr ydso'
+    data = request.json
+    days = data.get('days', '')
+    day = int(days)
+
+    invoice_data = fetch_invoice_data_last_num_days(
+        email_user, email_pass, day)
+
+    # Check if any PDFs are found
+    if invoice_data:
+        # Create a zip file to store multiple PDFs
+        return jsonify({"invoice_data": invoice_data})
+    else:
+        return "No PDF data found in the last 10 days."
 
 
 @app.route('/get_threshold_distances', methods=['POST'])
