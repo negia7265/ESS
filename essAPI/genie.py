@@ -40,12 +40,13 @@ def extract_date(text):
         date.add(d[1].strftime("%d-%m-%Y"))
     return date
 
-def preprocess_img(img):
-    # Decode and convert to grayscale
-    img = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_GRAYSCALE)
-    # Denoising Image
-    img = cv2.fastNlMeansDenoising( img, None, 15, 7, 21 )   
-    # Image Binarization
+def preprocess_img(img,img_decode):
+    if img_decode:
+        #Decode and convert to grayscale
+        img = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_GRAYSCALE)
+         # Denoising Image
+        img = cv2.fastNlMeansDenoising( img, None, 15, 7, 21 )   
+    #Image Binarization
     img=cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     # Perform morphological operations (erosion and dilation)
     kernel = np.ones((1, 1), np.uint8)
@@ -71,7 +72,7 @@ def check_address(text):
 relative_path = "essAPI"
 # Get the absolute path of the tessdata directory
 absolute_path = os.path.abspath(relative_path)
-
+# absolute_path=os.getcwd() # for linux
 def preprocess_address(text):
    #remove time from text
    position = re.search(r'\d{1,2}:\d{1,2}\s*(am|pm)?', text)
@@ -84,9 +85,8 @@ def preprocess_address(text):
     
 def get_address(img):
     address=[]
-    ret, thresh1 = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (16,16))   
-    dilation = cv2.dilate(thresh1, rect_kernel, iterations = 3) 
+    dilation = cv2.dilate(img, rect_kernel, iterations = 3) 
     contours, _ = cv2.findContours(dilation,  cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
     for cnt in contours[::-1]: 
         x, y, w, h = cv2.boundingRect(cnt)
