@@ -7,7 +7,8 @@ import { convertPdfToImages, readFileData } from "./pdf2img";
 import Preview from "./Preview";
 import { Form } from "./Form";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
-
+import JSZip from "jszip";
+// import unzipper from "unzipper";
 import { DNA, Hourglass } from "react-loader-spinner";
 const Container = styled.div`
   align-items: center;
@@ -283,6 +284,32 @@ const App = (props) => {
     }
   };
 
+  //Function to return a list of blobs from multiple pdfs
+  const extractZipData = async (zipBlob) => {
+    try {
+      // Create a new instance of JSZip
+      const zip = new JSZip();
+
+      // Load the zip file
+      const zipFile = await zip.loadAsync(zipBlob);
+
+      // Extract data from each file in the zip
+      const extractedData = await Promise.all(
+        Object.keys(zipFile.files).map(async (filename) => {
+          const file = zipFile.files[filename];
+          const fileData = await file.async("blob");
+          const pdfBlob = new Blob([fileData], { type: "application/pdf" });
+          return pdfBlob;
+        })
+      );
+
+      return extractedData;
+    } catch (error) {
+      console.error("Error extracting zip data:", error);
+      throw error;
+    }
+  };
+
   //A function to return the key with the highest value!! will be using this when creating form data from the API returned data.
   // function findMaxKey(obj) {
   //   let maxKey = null;
@@ -331,8 +358,25 @@ const App = (props) => {
     const form_data = await axios.get("http://127.0.0.1:5000/get_latest_pdf", {
       responseType: "arraybuffer",
     });
+    const days = {
+      days: daysAgo,
+    };
+    const form_num_days_data = await axios.post(
+      "http://127.0.0.1:5000/get_last_num_days_pdf",
+      days,
+      {
+        responseType: "arraybuffer",
+      }
+    );
+    console.log(form_num_days_data.headers["content-type"]);
+    const zipBlob = new Blob([form_num_days_data.data], {
+      type: "application/zip",
+    });
     const pdfBlob = new Blob([form_data.data], { type: "application/pdf" });
-
+    const pdfBlobsArray = extractZipData(zipBlob);
+    console.log(zipBlob);
+    console.log(pdfBlob);
+    console.log(pdfBlobsArray);
     // Create a FormData object
     const formData = new FormData();
 
@@ -349,7 +393,6 @@ const App = (props) => {
       })
       .then((response) => {
         props.setLoading(false);
-        console.log(response);
         // const valuesArray = Object.keys(response.data.address);
         const sourceAddressCleaned = response.data.src;
         const destinationAddressCleaned = response.data.dest;
