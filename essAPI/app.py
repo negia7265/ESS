@@ -10,6 +10,8 @@ import os
 import io
 from geopy.geocoders import GoogleV3
 from geopy.distance import geodesic
+from datetime import datetime, timedelta
+import zipfile
 app = Flask(__name__, template_folder='template')
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 # configuring cors headers to content type
@@ -58,6 +60,38 @@ def fetch_latest_pdf_attachment(email_user, email_pass):
     return pdf_attachment
 
 
+def fetch_pdfs_last_num_days(email_user, email_pass, day):
+    mail = imaplib.IMAP4_SSL("imap.gmail.com")
+    mail.login(email_user, email_pass)
+
+    # Select the mailbox (inbox in this case)
+    mail.select("inbox")
+
+    # Calculate the date 10 days ago
+    ten_days_ago = (datetime.now() - timedelta(days=day)).strftime("%d-%b-%Y")
+
+    # Search for emails with "OLA" or "Uber" in the subject received in the last 10 days
+    status, messages = mail.search(
+        None, f'(OR SUBJECT "Rapido Invoice" SUBJECT "Invoice for your Ride") SINCE {ten_days_ago}'
+    )
+
+    pdf_attachments = []
+    for msg_id in messages[0].split():
+        _, msg_data = mail.fetch(msg_id, "(RFC822)")
+        raw_email = msg_data[0][1]
+        msg = email.message_from_bytes(raw_email)
+        for part in msg.walk():
+            if part.get_content_type() == "application/pdf":
+                print("PDF found")
+                pdf_attachment = part.get_payload(decode=True)
+                pdf_attachments.append(pdf_attachment)
+
+    mail.close()
+    mail.logout()
+
+    return pdf_attachments
+
+
 @app.route('/')
 def index():
     return render_template('404.html'), 404
@@ -102,6 +136,37 @@ def get_latest_pdf():
         )
     else:
         return "No PDF attachment found in the latest email."
+
+
+@app.route('/get_last_num_days_pdf', methods=['POST'])
+def get_pdf_last_num_days():
+    email_user = 'blackpearl7579@gmail.com'
+    email_pass = 'ddvh wnep mxmr ydso'
+    data = request.json
+    days = data.get('days', '')
+    day = int(days)
+
+    pdf_attachments = fetch_pdfs_last_num_days(email_user, email_pass, day)
+
+    # Check if any PDFs are found
+    if pdf_attachments:
+        # Create a zip file to store multiple PDFs
+        zip_file = io.BytesIO()
+        with zipfile.ZipFile(zip_file, 'w') as zipf:
+            for index, pdf_attachment in enumerate(pdf_attachments):
+                pdf_filename = f"attachment_{index + 1}.pdf"
+                zipf.writestr(pdf_filename, pdf_attachment)
+
+        # Seek to the beginning of the zip file
+        zip_file.seek(0)
+
+        return send_file(
+            zip_file,
+            download_name="latest_attachments.zip",
+            mimetype="application/zip"
+        )
+    else:
+        return "No PDF attachments found in the last 10 days."
 
 
 @app.route('/get_threshold_distances', methods=['POST'])
