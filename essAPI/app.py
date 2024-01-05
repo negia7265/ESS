@@ -86,7 +86,7 @@ def fetch_invoice_data_last_num_days(email_user, email_pass, day):
         subject = msg["Subject"]
         date_received = datetime.strptime(
             msg["Date"], "%a, %d %b %Y %H:%M:%S %z")
-
+        sender_address = msg.get("From", "")
         # Store date and time as separate strings
         formatted_date = date_received.strftime("%d-%b-%Y")
         formatted_time = date_received.strftime("%I:%M %p %Z")
@@ -95,7 +95,8 @@ def fetch_invoice_data_last_num_days(email_user, email_pass, day):
         invoice_data.append({
             "subject": subject,
             "date_received": formatted_date,
-            "time_received": formatted_time
+            "time_received": formatted_time,
+            "sender_address": sender_address
         })
 
     mail.close()
@@ -227,6 +228,7 @@ def get_invoice_data_last_num_days():
     # Check if any PDFs are found
     if invoice_data:
         # Create a zip file to store multiple PDFs
+        invoice_data.reverse()
         return jsonify({"invoice_data": invoice_data})
     else:
         return "No PDF data found in the last 10 days."

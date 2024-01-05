@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { nanoid } from "nanoid";
 import Candidates from "./Candidates";
@@ -10,6 +10,7 @@ import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 import JSZip from "jszip";
 // import unzipper from "unzipper";
 import { DNA, Hourglass } from "react-loader-spinner";
+// import { EmailSelect } from "./EmailSelect";
 const Container = styled.div`
   align-items: center;
   justify-content: center;
@@ -245,7 +246,10 @@ const App = (props) => {
   });
   // Slide For Email
   const [daysAgo, setdaysAgo] = useState(0);
-
+  //For Email Selecting Box
+  const [loademailSelectTable, setloademailSelectTable] = useState(false);
+  const [emailDetails, setEmailDetails] = useState([]);
+  const [blobArray, setblobArray] = useState([]);
   const filesizes = (bytes, decimals = 2) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -310,26 +314,15 @@ const App = (props) => {
     }
   };
 
-  //A function to return the key with the highest value!! will be using this when creating form data from the API returned data.
-  // function findMaxKey(obj) {
-  //   let maxKey = null;
-  //   let maxValue = Number.NEGATIVE_INFINITY;
-
-  //   for (const key in obj) {
-  //     if (obj.hasOwnProperty(key) && typeof obj[key] === "number") {
-  //       if (obj[key] > maxValue) {
-  //         maxValue = obj[key];
-  //         maxKey = key;
-  //       }
-  //     }
-  //   }
-
-  //   return maxKey;
-  // }
   const handleFormClick = (e) => {
-    // e.preventDefault();
-    // setloadForm(true);
-    // setloadPreview(false);
+    setTimeout(() => {
+      console.log("Form submitted");
+    }, 2000);
+  };
+
+  const handleEmailSelect = (blob) => {
+    // setloadPreview(true);
+    // setloadForm(false);
     // setSourceAddress({});
     // setDestinationAddress({});
     // setAmount({});
@@ -337,49 +330,15 @@ const App = (props) => {
     // setDistance({});
     // setInvoiceImages([]);
     // setPreview(true);
-    // props.setLoading(true);
-
-    setTimeout(() => {
-      console.log("Form submitted");
-    }, 2000);
-  };
-  const handleEmailClick = async (e) => {
-    e.preventDefault();
-    setloadPreview(true);
-    setloadForm(false);
-    setSourceAddress({});
-    setDestinationAddress({});
-    setAmount({});
-    setDate({});
-    setDistance({});
-    setInvoiceImages([]);
-    setPreview(true);
     props.setLoading(true);
-    const form_data = await axios.get("http://127.0.0.1:5000/get_latest_pdf", {
-      responseType: "arraybuffer",
-    });
-    const days = {
-      days: daysAgo,
-    };
-    const form_num_days_data = await axios.post(
-      "http://127.0.0.1:5000/get_last_num_days_pdf",
-      days,
-      {
-        responseType: "arraybuffer",
-      }
-    );
-    const zipBlob = new Blob([form_num_days_data.data], {
-      type: "application/zip",
-    });
-    const pdfBlob = new Blob([form_data.data], { type: "application/pdf" });
-
-    const temporary = await extractZipData(zipBlob);
-    // Create a FormData object
-    const formData = new FormData();
+    setloademailSelectTable(false);
+    console.log(blob);
+    // const formData = new FormData();
 
     // Append the Blob as a file with the key 'file'
-    formData.append("file", pdfBlob, "latest_attachment.pdf");
-    convertPdfToImages(pdfBlob).then((data) => {
+    const formData = new FormData();
+    formData.append("file", blob, "latest_attachment.pdf");
+    convertPdfToImages(blob).then((data) => {
       setInvoiceImages((prevImages) => [...prevImages, ...data]);
     });
     axios
@@ -389,7 +348,7 @@ const App = (props) => {
         },
       })
       .then((response) => {
-        props.setLoading(false);
+        // props.setLoading(false);
         // const valuesArray = Object.keys(response.data.address);
         const sourceAddressCleaned = response.data.src;
         const destinationAddressCleaned = response.data.dest;
@@ -451,10 +410,142 @@ const App = (props) => {
             console.log(response.data);
             setessStatus(response.data);
           });
+        props.setLoading(false);
       });
-
+    setloadPreview(true);
+    setloadForm(false);
+    setSourceAddress({});
+    setDestinationAddress({});
+    setAmount({});
+    setDate({});
+    setDistance({});
+    setInvoiceImages([]);
+    setPreview(true);
     setSelectedFile([]);
-    e.target.value = null;
+  };
+  const handleEmailClick = async (e) => {
+    e.preventDefault();
+    // setloadPreview(true);
+    // setloadForm(false);
+    // setSourceAddress({});
+    // setDestinationAddress({});
+    // setAmount({});
+    // setDate({});
+    // setDistance({});
+    // setInvoiceImages([]);
+    // setPreview(true);
+    props.setLoading(true);
+
+    // const form_data = await axios.get("http://127.0.0.1:5000/get_latest_pdf", {
+    //   responseType: "arraybuffer",
+    // });
+    const days = {
+      days: daysAgo,
+    };
+
+    const form_num_days_data = await axios.post(
+      "http://127.0.0.1:5000/get_last_num_days_pdf",
+      days,
+      {
+        responseType: "arraybuffer",
+      }
+    );
+    const invoice_data_last_num_days = await axios.post(
+      "http://127.0.0.1:5000/fetch_invoice_data_last_num_days",
+      days
+    );
+    const zipBlob = new Blob([form_num_days_data.data], {
+      type: "application/zip",
+    });
+    // const pdfBlob = new Blob([form_data.data], { type: "application/pdf" });
+
+    const temporary = await extractZipData(zipBlob);
+    setblobArray(temporary);
+    setEmailDetails(invoice_data_last_num_days.data.invoice_data);
+    setloademailSelectTable(true);
+    props.setLoading(false);
+
+    // // Create a FormData object
+    // const formData = new FormData();
+
+    // // Append the Blob as a file with the key 'file'
+    // formData.append("file", pdfBlob, "latest_attachment.pdf");
+    // convertPdfToImages(pdfBlob).then((data) => {
+    //   setInvoiceImages((prevImages) => [...prevImages, ...data]);
+    // });
+    // axios
+    //   .post("http://127.0.0.1:5000/parse_invoice/api", formData, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   })
+    //   .then((response) => {
+    //     props.setLoading(false);
+    //     // const valuesArray = Object.keys(response.data.address);
+    //     const sourceAddressCleaned = response.data.src;
+    //     const destinationAddressCleaned = response.data.dest;
+
+    //     // console.log(valuesArray[0]);
+    //     setSourceAddress((prevState) => {
+    //       setFormData((prevState) => {
+    //         return {
+    //           ...prevState,
+    //           sourceAddress: sourceAddressCleaned,
+    //         };
+    //       });
+    //     });
+    //     setDestinationAddress((prevState) => {
+    //       setFormData((prevState) => {
+    //         return {
+    //           ...prevState,
+    //           destinationAddress: destinationAddressCleaned,
+    //         };
+    //       });
+    //     });
+    //     setAmount((prevState) => {
+    //       // const max_amount_value = findMaxKey(response.data.amount);
+    //       // console.log(max_amount_value);
+    //       setFormData((prevState) => {
+    //         return {
+    //           ...prevState,
+    //           amount: response.data.amount,
+    //         };
+    //       });
+    //     });
+    //     setDistance((prevState) => {
+    //       setFormData((prevState) => {
+    //         return {
+    //           ...prevState,
+    //           distance: response.data.dist,
+    //         };
+    //       });
+    //     });
+    //     setDate((prevState) => {
+    //       setFormData((prevState) => {
+    //         return {
+    //           ...prevState,
+    //           date: response.data.date,
+    //         };
+    //       });
+    //     });
+    //     const threshData = {
+    //       source_name: response.data.src,
+    //       destination_name: response.data.dest,
+    //       office_name: officeName,
+    //       threshold: threshold,
+    //       homethreshold: homethreshold,
+    //       homeAddress: homeAddress,
+    //     };
+    //     axios
+    //       .post("http://127.0.0.1:5000/get_threshold_distances", threshData)
+    //       .then((response) => {
+    //         console.log(response.data);
+    //         setessStatus(response.data);
+    //       });
+    //   });
+
+    // setSelectedFile([]);
+    // e.target.value = null;
   };
 
   const fileUploadSubmit = (e) => {
@@ -576,10 +667,62 @@ const App = (props) => {
   const handleSliderChange = (e) => {
     setdaysAgo(e.target.value);
   };
+
+  //Email Selecting Box getting time lag when creating a separat Component Will try later
+
+  const EmailSelect = () => {
+    const handleSelect = (i) => {
+      handleEmailSelect(blobArray[i]);
+    };
+    return (
+      <div class="container">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">No</th>
+              <th scope="col">Subject</th>
+              <th scope="col">Sender's id</th>
+              <th scope="col">Date Received</th>
+              <th scope="col">Time Received</th>
+              <th scope="col" colspan="2">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {emailDetails.length > 0 ? (
+              emailDetails.map((email, i) => (
+                <tr key={i}>
+                  <td>{i + 1}</td>
+                  <td>{email.subject}</td>
+                  <td>{email.sender_address}</td>
+                  <td>{email.date_received}</td>
+                  <td>{email.time_received}</td>
+                  <td className="text-right">
+                    <button
+                      onClick={() => handleSelect(i)}
+                      className="btn btn-outline-warning"
+                    >
+                      Select
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7}>No Emails</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        {!loadPreview && !loadForm && (
+        {!loademailSelectTable && !loadPreview && !loadForm && (
           <>
             <div>
               <div
@@ -633,15 +776,6 @@ const App = (props) => {
                   Upload
                 </StyledButton>
 
-                {/* <Hourglass
-                visible={true}
-                height="120"
-                width="120"
-                ariaLabel="hourglass-loading"
-                wrapperStyle={{}}
-                wrapperClass=""
-                colors={["#306cce", "#72a1ed"]}
-              /> */}
                 {selectedfile.map((data) => {
                   const { id, filename, fileimage, filesize } = data;
                   return (
@@ -688,26 +822,36 @@ const App = (props) => {
           </Wrapper>
         </div>
       )}
-      {!props.loading && (
-        <div>
-          {loadPreview ? (
-            <div style={{ marginLeft: "59vh" }}>
-              <Preview invoiceImages={invoiceImages} />
-            </div>
-          ) : loadForm ? (
-            <Form
-              setloadPreview={setloadPreview}
-              handleFormClick={handleFormClick}
-              setloadForm={setloadForm}
-              formData={formData}
-              essStatus={essStatus}
-            />
-          ) : (
-            <div></div>
-          )}
-        </div>
+      {loademailSelectTable ? (
+        <EmailSelect />
+      ) : (
+        !props.loading && (
+          <div>
+            {loadPreview ? (
+              <div style={{ marginLeft: "59vh" }}>
+                <Preview invoiceImages={invoiceImages} />
+              </div>
+            ) : loadForm ? (
+              <Form
+                setloadPreview={setloadPreview}
+                handleFormClick={handleFormClick}
+                setloadForm={setloadForm}
+                formData={formData}
+                essStatus={essStatus}
+              />
+            ) : (
+              <div></div>
+            )}
+          </div>
+        )
       )}
-
+      ;
+      {/* <EmailSelect
+      // emailDetails={emailDetails}
+      // blobArray={blobArray}
+      // setSelectedBlob={setSelectedBlob}
+      // handleEmailSelect={handleEmailSelect}
+      /> */}
       {/* <Preview invoiceImages={invoiceImages} />
       <Form /> */}
       {/* <div style={{ display: "flex", justifyContent: "center" }}>
