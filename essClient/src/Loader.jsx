@@ -13,7 +13,7 @@ export const Loader = () => {
         alignItems: "center",
       }}
     >
-      <h1 style={{ color: "black", fontSize: "10vh" }}>Loading...</h1>
+      <h1 style={{ color: "black", fontSize: "50px", margin: "30px" }}>Loading...</h1>
       <div>
         {/* <svg
           style={{ width: "70vh" }}

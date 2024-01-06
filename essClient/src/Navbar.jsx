@@ -73,12 +73,12 @@ const Navbar = () => {
     <StyledNavbar>
       <ContainerNav>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Logo src="https://firebasestorage.googleapis.com/v0/b/ess-authentication-fb04c.appspot.com/o/pngwing.com%20(3).png?alt=media&token=a2a8ea41-6a36-48db-a519-dc6a1cc0a3c2"></Logo>
+          <Logo src="tally_pngwing.png"></Logo>
           <div
             style={{
               display: "flex",
               justifyContent: "space-around",
-              marginRight: "10vh",
+              marginRight: "4%",
             }}
           >
             {/* <Logo

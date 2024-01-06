@@ -15,9 +15,10 @@ import styled from "styled-components";
 //   height: 100vh; /* Adjust the height as needed */
 // `;
 const Image = styled.img`
-  width: 100%; /* Adjust the maximum width as needed */
-  max-width: 90vh;
-  max-height: 100vh;
+  width: 90%;
+  max-width: 800px;
+  height: 100%;
+  margin: 0 auto;
   padding: 0;
   display: block; /* Ensure the image is treated as a block element */
 `;

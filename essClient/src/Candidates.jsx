@@ -43,7 +43,7 @@ align-items: center;
 color: white;
 cursor: pointer;
 border: none;
-width:344px;
+min-width:344px;
 height:57px;
 border-radius: 5px;
 background: -webkit-linear-gradient(left, #003366,#004080,#0059b3, #0073e6);
