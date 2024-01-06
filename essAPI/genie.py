@@ -45,14 +45,14 @@ def extract_date(text):
         date.add(d[1].strftime("%d-%m-%Y"))
     return date
 
-def preprocess_img(img,img_decode):
-    if img_decode:
-        #Decode and convert to grayscale
-        img = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_GRAYSCALE)
-         # Denoising Image
-        img = cv2.fastNlMeansDenoising( img, None, 15, 7, 21 )   
-    #Image Binarization
-    img=cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+def preprocess_img(image):
+    image=image.convert('RGB')
+    image.save('300_dpi.jpg', dpi=(300, 300))  # Set 300 DPI
+    #Decode and convert to grayscale
+    img=cv2.imread('300_dpi.jpg')
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+     # Denoising Image
+    img = cv2.fastNlMeansDenoising( img, None, 15, 7, 21 )
     # Perform morphological operations (erosion and dilation)
     kernel = np.ones((1, 1), np.uint8)
     return cv2.morphologyEx(img, cv2.MORPH_DILATE, kernel)
@@ -74,10 +74,6 @@ def check_address(text):
             return True
     return False
 
-relative_path = "essAPI"
-# Get the absolute path of the tessdata directory
-absolute_path = os.path.abspath(relative_path)
-# absolute_path=os.getcwd() # for linux
 def preprocess_address(text):
    #remove time from text
    position = re.search(r'\d{1,2}:\d{1,2}\s*(am|pm)?', text)
@@ -85,20 +81,22 @@ def preprocess_address(text):
       text=text[position.end():]
    #remove unwanted characters from address
    text= re.sub(r"[^a-zA-Z0-9,\s/-]", "", text)
+   text= re.sub(r"[\n\x0c]", "", text)
    return text
 
     
-def get_address(img):
+def get_address(img,preprocessed_img):
     address=[]
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (16,16))   
-    dilation = cv2.dilate(img, rect_kernel, iterations = 3) 
+    ret, thresh1 = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (16,12))   
+    dilation = cv2.dilate(thresh1, rect_kernel, iterations = 2) 
     contours, _ = cv2.findContours(dilation,  cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
     for cnt in contours[::-1]: 
         x, y, w, h = cv2.boundingRect(cnt)
-        cropped = img[y:y + h, x:x + w]
-        text=pytesseract.image_to_string(cropped,lang='eng',config=f'--tessdata-dir "{absolute_path}"').lower()
+        cropped = preprocessed_img[y:y + h, x:x + w]
+        text=pytesseract.image_to_string(cropped,lang='eng').lower()
         if check_address(text):
             address.append(preprocess_address(text))
         if len(address)==2:
             return address
-    return address   
+    return address 
