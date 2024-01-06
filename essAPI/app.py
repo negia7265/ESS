@@ -181,8 +181,10 @@ def get_latest_pdf():
             mimetype="application/pdf"
         )
     else:
-        return "No PDF attachment found in the latest email."
-
+        response=jsonify({'error':"No PDF attachment found in the latest email."})
+        response.status_code=400
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response 
 
 @app.route('/get_last_num_days_pdf', methods=['POST'])
 def get_pdf_last_num_days():
@@ -212,7 +214,10 @@ def get_pdf_last_num_days():
             mimetype="application/zip"
         )
     else:
-        return "No PDF attachments found in the last 10 days."
+        response=jsonify({"error":f"No PDF attachments found in the last {day} days."})
+        response.status_code=400
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response 
 
 
 @app.route('/fetch_invoice_data_last_num_days', methods=['POST'])
@@ -230,9 +235,13 @@ def get_invoice_data_last_num_days():
     if invoice_data:
         # Create a zip file to store multiple PDFs
         invoice_data.reverse()
-        return jsonify({"invoice_data": invoice_data})
+        response=jsonify({"invoice_data": invoice_data})
     else:
-        return "No PDF data found in the last 10 days."
+        response=jsonify({"error":f"No PDF attachments found in the last {day} days."})
+        response.status_code=400
+    
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response 
 
 
 @app.route('/get_threshold_distances', methods=['POST'])
@@ -251,11 +260,17 @@ def get_threshold_distances():
     # office_name = "AMR Tech Park II, No. 23 & 24, Hongasandra, Hosur Main Road, Bengaluru, Karnataka 560068"
 
     # Perform geocoding for both locations
-
-    location1 = geolocator.geocode(source_name)
-    location2 = geolocator.geocode(destination_name)
-    location3 = geolocator.geocode(office_name)
-    location4 = geolocator.geocode(homeAddress)
+    try:
+        location1 = geolocator.geocode(source_name)
+        location2 = geolocator.geocode(destination_name)
+        location3 = geolocator.geocode(office_name)
+        location4 = geolocator.geocode(homeAddress)
+    except:
+        # Handle the exception and return a custom response
+        response = jsonify({'error': 'Error Geocoding'})
+        response.status_code = 400  # or any other appropriate HTTP status code
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     # will return these too
     direction = ""
     status = ""
@@ -295,8 +310,10 @@ def get_threshold_distances():
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
     else:
-        return jsonify({"error": "Geocoding failed for one or both locations"}), 400
-
+        response=jsonify({"error": "Geocoding failed for one or both locations"})
+        response.status_code=400
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response 
 
 if __name__ == '__main__':
     app.run(debug=True)  # Please do not set debug=True in production
