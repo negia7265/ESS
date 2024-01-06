@@ -737,7 +737,7 @@ const App = (props) => {
                   id="changeSize"
                   type="range"
                   min="0"
-                  max="30"
+                  max="31"
                   style={{ background: "grey" }}
                   defaultValue={0}
                   //disabled={isRunning ? "disabled" : null}

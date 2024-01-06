@@ -20,6 +20,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # Function to return the latest pdf attachment from the email inbox in bytes format
 
 api_key = 'AIzaSyALB6uQiBGnyZAJMiS1MAT8ViJmRQea8W0'
+# api_key = 'AIzaSyCXrR0hZ22X-nlMkwWK2pwt81mEJhL9V3Y'
 geolocator = GoogleV3(api_key=api_key)
 
 
@@ -243,6 +244,8 @@ def get_threshold_distances():
     threshold = data.get('threshold', '')
     homethreshold = data.get('homethreshold', '')
     homeAddress = data.get('homeAddress', '')
+    print(source_name, destination_name, office_name,
+          threshold, homethreshold, homeAddress)
     # source_name = "2722+5RC, Kasturba Nagar 3rd Cross St, Venkata Rathnam Nagar Extension,Venkata Rathinam Nagar, Adyar, Chennai"
     # destination_name = "24, Gangadhar Chetty Rd, Rukmani Colony, Sivanchetti Gardens, Bengaluru, Karnataka 560042"
     # office_name = "AMR Tech Park II, No. 23 & 24, Hongasandra, Hosur Main Road, Bengaluru, Karnataka 560068"
@@ -282,14 +285,15 @@ def get_threshold_distances():
                 status = "ESS_Granted"
             else:
                 status = "ESS_Denied"
-
-        return jsonify({
+        response = jsonify({
             "source_to_destination": int(source_to_destination),
             "source_to_office": int(source_to_office),
             "destination_to_office": int(destination_to_office),
             "direction": direction,
             "status": status
         })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     else:
         return jsonify({"error": "Geocoding failed for one or both locations"}), 400
 
