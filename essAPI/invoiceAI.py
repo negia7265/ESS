@@ -5,8 +5,10 @@ import pdfplumber # best reliable open source project to parse pdf
 from generator import generate_amount_candidates
 import os
 import re
+import cv2
 import pytesseract
 import numpy as np
+from PIL import Image
 current_directory = os.getcwd()
 
 # Relative path to the model file
@@ -21,7 +23,7 @@ model=tf.keras.models.load_model(model_path)
 # distance, amount and address.
 relative_path_eng = "essAPI"
 absolute_path = os.path.abspath(relative_path_eng)
-# absolute_path=os.getcwd()  
+# absolute_path=os.getcwd() #linux 
 class InvoiceParser:
     def __init__(self,invoice_data,invoice_data_type):
         self.date=''
@@ -38,37 +40,46 @@ class InvoiceParser:
                 # dedupe chars is a method which removes overlapped lines in a page
                 # bold fonts can be considered double /overlapped lines so it is used here.  
                 page=page.dedupe_chars(tolerance=1)
+                text=page.extract_text()
+                tax_invoice_page='tax invoice' in text.lower()
                 self.extract(page.extract_text())
                 # convert invoice page to image with 300 DPI image quality , black and white color.
-                img=np.array(page.to_image(resolution=300).original.convert('L'))
-                img=genie.preprocess_img(img,img_decode=False)
+                image=page.to_image(resolution=300).original
+                preprocessed_img=genie.preprocess_img(image)
                 # The text positional features along with text itself is extracted from 
                 # pdf to feed as input to ml model.
-                df=pytesseract.image_to_data(img,lang='eng',config=f'--tessdata-dir "{absolute_path}"', output_type='data.frame')
+                df=pytesseract.image_to_data(preprocessed_img,lang='eng',config=f'--tessdata-dir "{absolute_path}"', output_type='data.frame')
                 height=max(df['top'].max(),df['height'].max())
                 width=max(df['left'].max(),df['width'].max())
-                self.extract_amount(df,height,width)
+                if not tax_invoice_page:
+                   self.extract_amount(df,height,width)
+                image=np.array(image.convert('L')) #black and white image
                 if len(self.address)<2:
-                    for addr in genie.get_address(img):
+                    for addr in genie.get_address(image,preprocessed_img):
                         self.address.append(addr)
                         if len(self.address)==2:
                             break
             invoice.close()
         else:  
-            img=genie.preprocess_img(invoice_data,img_decode=True)  
-            for addr in genie.get_address(img):
-               self.address.append(addr)
-               if len(self.address)==2:
-                    break
-            text = pytesseract.image_to_string(img, lang='eng', config=rf'--tessdata-dir "{absolute_path}"')
+            image=Image.open(invoice_data)
+            preprocessed_img=genie.preprocess_img(image) 
+            text = pytesseract.image_to_string(preprocessed_img, lang='eng')
             self.extract(text)
             # dataframe contains positional features of each word present in invoice.
-            df=pytesseract.image_to_data(img,lang='eng',config=f'--tessdata-dir "{absolute_path}"', output_type='data.frame')
+            df=pytesseract.image_to_data(preprocessed_img,lang='eng',config=f'--tessdata-dir "{absolute_path}"', output_type='data.frame')
+            print(list(df['text']))
             height=max(df['top'].max(),df['height'].max())
             width=max(df['left'].max(),df['width'].max())
             if not df.empty:
             # Tesseract ocr provides image dimensions in it's dataframe 
                self.extract_amount(df,height,width)
+
+            image=cv2.imread('300_dpi.jpg')
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            for addr in genie.get_address(image,preprocessed_img):
+               self.address.append(addr)
+               if len(self.address)==2:
+                    break
                            
     def extract(self,text):
         dist=genie.extract_distance(text)
