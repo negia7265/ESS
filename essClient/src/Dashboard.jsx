@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { nanoid } from "nanoid";
 import Candidates from "./Candidates";
@@ -8,9 +8,8 @@ import Preview from "./Preview";
 import { Form } from "./Form";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 import JSZip from "jszip";
-// import unzipper from "unzipper";
 import { DNA, Hourglass } from "react-loader-spinner";
-// import { EmailSelect } from "./EmailSelect";
+
 const Container = styled.div`
   align-items: center;
   justify-content: center;
@@ -18,7 +17,7 @@ const Container = styled.div`
   width: 100%;
 `;
 const Dropzone = styled.div`
-  width: 40vw;
+  width: 100%;
   height: 20vh;
   border: 5px dashed #ccc;
   display: flex;
@@ -79,7 +78,7 @@ const RightPane = styled.div`
 `;
 
 const FileContainer = styled.div`
-  width: 40vw;
+  width: 100%;
   margin-top: 0.5em;
   height: 7vh;
   border: 0.5px solid grey;
@@ -104,9 +103,9 @@ const Image = styled.img`
 
 //Dealing with Sliding Tab
 const Wrapper = styled.div`
+  width: 70vh;
+  margin: 10px;
   overflow: hidden;
-  min-width: 100vh;
-  min-height: 25vh;
   background: #fff;
   padding: 30px;
   border-radius: 15px;
@@ -183,8 +182,8 @@ export const StyledButton = styled.button`
   cursor: pointer;
   transition: 800ms ease all;
   outline: none;
-  min-width: 83vh;
-  margin-top: 2vh;
+  width: 100%;
+  margin-top: 5vh;
   &:hover {
     background: #fff;
     color: ${(props) => props.Color};
@@ -342,7 +341,7 @@ const App = (props) => {
       setInvoiceImages((prevImages) => [...prevImages, ...data]);
     });
     axios
-      .post("http://127.0.0.1:5000/parse_invoice/api", formData, {
+      .post("http://localhost:5000/parse_invoice/api", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -474,7 +473,7 @@ const App = (props) => {
     //   setInvoiceImages((prevImages) => [...prevImages, ...data]);
     // });
     // axios
-    //   .post("http://127.0.0.1:5000/parse_invoice/api", formData, {
+    //   .post("http://localhost:5000/parse_invoice/api", formData, {
     //     headers: {
     //       "Content-Type": "multipart/form-data",
     //     },
@@ -575,7 +574,7 @@ const App = (props) => {
         }
         formData.append("file", file.file_content);
         axios
-          .post("http://127.0.0.1:5000/parse_invoice/api", formData, {
+          .post("http://localhost:5000/parse_invoice/api", formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -724,7 +723,7 @@ const App = (props) => {
       <div style={{ display: "flex", justifyContent: "center" }}>
         {!loademailSelectTable && !loadPreview && !loadForm && (
           <>
-            <div>
+            <div style={{ width: "90%", maxWidth: "500px" }}>
               <div
                 style={{
                   margin: "5px",
@@ -822,13 +821,15 @@ const App = (props) => {
           </Wrapper>
         </div>
       )}
+
+
       {loademailSelectTable ? (
         <EmailSelect />
       ) : (
         !props.loading && (
-          <div>
+          <div style={{ marginBottom: "100px" }}>
             {loadPreview ? (
-              <div style={{ marginLeft: "59vh" }}>
+              <div style={{ marginLeft: "5vw", marginRight: "5vw" }}>
                 <Preview invoiceImages={invoiceImages} />
               </div>
             ) : loadForm ? (

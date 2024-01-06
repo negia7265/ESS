@@ -155,7 +155,7 @@ def extract_invoice_pdf():
         parser = InvoiceParser(BytesIO(FILE.read()), 'pdf')
         response = jsonify(parser.getData())
     elif FILE.mimetype.startswith('image'):
-        parser = InvoiceParser(FILE.read(), 'image')
+        parser = InvoiceParser(BytesIO(FILE.read()), 'image')
         response = jsonify(parser.getData())
     else:
         response = jsonify({'error': 'Invalid file type.'})
