@@ -19,7 +19,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Function to return the latest pdf attachment from the email inbox in bytes format
 
-api_key = 'AIzaSyALB6uQiBGnyZAJMiS1MAT8ViJmRQea8W0'
+api_key = ''
 # api_key = 'AIzaSyCXrR0hZ22X-nlMkwWK2pwt81mEJhL9V3Y'
 geolocator = GoogleV3(api_key=api_key)
 
